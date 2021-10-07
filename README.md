@@ -10,6 +10,7 @@ Primarily, for annotation, we use MicroDraw, available at: https://microdraw.pas
 To learn how we annotate each structure, visit: https://docs.google.com/document/d/1gAQIiEM9bAYKqiLpG9vHDmuaBk-LYpSIdsVsISAPzq4/edit
 
 See our prototype reconstruction of an eastern lowland gorilla cerebellum:
+
 ![Gorilla3DTransparent](https://user-images.githubusercontent.com/73407206/136446331-42e5afb3-2867-4329-952f-3b5593972e9c.gif)
 
 
