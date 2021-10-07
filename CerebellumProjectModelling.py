@@ -3,13 +3,22 @@ from matplotlib import pyplot as plt
 from matplotlib import ticker as tk
 from matplotlib.lines import Line2D
 import pandas as pd
+import sys
 
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
 
-data = pd.read_csv('Cerebellum Project All Species Values.csv', na_values='')
-data = data.dropna(how='all', axis='columns').drop(columns='Source')
+# TODO:
+#  make try/except block to check if csv file present
+
+try:
+    data = pd.read_csv('all_species_values.csv', na_values='')
+    data = data.dropna(how='all', axis='columns').drop(columns='Source')
+except FileNotFoundError:
+    print('Please ensure you have the \'all_species_values.csv\' '
+          'in the same directory as this program.')
+    sys.exit()
 
 vol_cerebrum = list(data['CerebellumVolume '].astype(float))
 vol_bellum = list(data['CerebrumVolume'].astype(float))
