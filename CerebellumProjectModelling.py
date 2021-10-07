@@ -8,9 +8,6 @@ import pandas as pd
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
 
-# TODO:
-#  make try/except block to check if csv file present
-
 data = pd.read_csv('Cerebellum Project All Species Values.csv', na_values='')
 data = data.dropna(how='all', axis='columns').drop(columns='Source')
 
