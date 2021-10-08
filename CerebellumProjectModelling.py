@@ -1,167 +1,116 @@
 
-from matplotlib import pyplot as plt
-from matplotlib import ticker as tk
-from matplotlib.lines import Line2D
-import pandas as pd
 import sys
+import itertools
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.ticker as tk
+from matplotlib.lines import Line2D
 
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
 
-# TODO:
-#  make try/except block to check if csv file present
-
 try:
     data = pd.read_csv('all_species_values.csv', na_values='')
     data = data.dropna(how='all', axis='columns').drop(columns='Source')
+    data.rename(columns={
+        'Species ': 'Species',
+        'CerebellumSurfaceArea': 'Cerebellum Surface Area',
+        'CerebrumSurfaceArea': 'Cerebrum Surface Area',
+        'CerebellumVolume ': 'Cerebellum Volume',
+        'CerebrumVolume': 'Cerebrum Volume'
+        }, inplace=True)
+
 except FileNotFoundError:
     print('Please ensure you have the \'all_species_values.csv\' '
           'in the same directory as this program.')
     sys.exit()
 
-vol_cerebrum = list(data['CerebellumVolume '].astype(float))
-vol_bellum = list(data['CerebrumVolume'].astype(float))
-surf_bel = list(data['CerebellumSurfaceArea'].astype(float))
+vol_cerebrum = tuple(data['Cerebellum Volume'].astype(float))
+vol_bellum = tuple(data['Cerebrum Volume'].astype(float))
+surf_bel = tuple(data['Cerebellum Surface Area'].astype(float))
+
 taxon = data['Taxon']
 colors = {
-    'Hominidae':  '#444470',
-    'Hylobatidae': '#5f5c70',
-    'Cercopithecidae': '#95919c',
-    'Platyrrhini': '#c6c2cc'
+    'Hominidae':  '#7f48b5',
+    'Hylobatidae': '#c195ed',
+    'Cercopithecidae': '#f0bb3e',
+    'Platyrrhini': '#f2e3bd'
     }
 
+col_names = [list(data.columns)[4], list(data.columns)[3], list(data.columns)[1]]
+col_combinations = list(itertools.combinations(col_names, 2))
+
+fig1, axs1 = plt.subplots(1, 3, figsize=(16, 5))
+
+# Gives legend markers same color as predefined taxon colors
+handles = [
+    Line2D(
+        [0], [0],
+        color='w', marker='o', markerfacecolor=v,
+        markeredgecolor='k',  markeredgewidth='0.5',
+        markersize=4, label=k,
+        ) for k, v in colors.items()
+    ]
+
+# Start of simple plotting
+for i, (x, y) in enumerate(col_combinations):
+    axs1[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
+
+    axs1[i].set_title(
+        f'Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
+        fontsize=11
+        )
+
+    axs1[i].set_xlabel(f'{col_combinations[i][0]}')
+    axs1[i].set_ylabel(f'{col_combinations[i][1]}')
+
+    ax_legend = axs1[i].legend(
+        title='Taxon',
+        title_fontsize='9',
+        handles=handles,
+        loc='upper left',
+        fontsize=10
+        )
+
+    ax_legend.get_frame().set_color('white')
+    fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+
 # change figsize=(x, y) to suit your monitor/needs.
-fig1, (ax, ax1, ax2) = plt.subplots(nrows=1, ncols=3, figsize=(15, 4))
-fig2, (ax_logged, ax1_logged, ax2_logged) = plt.subplots(nrows=1, ncols=3, figsize=(15, 4))
+fig2, axs2 = plt.subplots(1, 3, figsize=(16, 5))
 
-# start of normal plotting
-ax.scatter(vol_cerebrum, vol_bellum, c=taxon.map(colors), edgecolor='k')
+# Start of logged plotting
+for i, (x, y) in enumerate(col_combinations):
+    axs2[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
 
-ax.set_title('Primate Cerebellum Volume against\nCerebrum Volume', fontsize=11)
-ax.set_xlabel('Cerebellum Volume')
-ax.set_ylabel('Cerebrum Volume')
+    axs2[i].set_title(
+        f'Logged Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
+        fontsize=11
+        )
 
-# gives legend markers same color as predefined taxon colors
-handles = [Line2D(
-    [0], [0],
-    marker='o', color='w', markerfacecolor=v,
-    label=k, markersize=4, markeredgecolor='k',
-    markeredgewidth='0.5'
-) for k, v in colors.items()]
+    axs2[i].set_xlabel(f'Logged {col_combinations[i][0]}')
+    axs2[i].set_ylabel(f'Logged {col_combinations[i][1]}')
 
-ax_legend = ax.legend(
-    title='Taxon',
-    title_fontsize='9',
-    handles=handles,
-    loc='upper left',
-    fontsize=10
-)
-ax_legend.get_frame().set_color('white')
+    axs2[i].set_xscale('log')
+    axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
+    axs2[i].set_xticks([1, 5, 10, 25, 50, 100, 200, 400])
 
-ax1.scatter(vol_bellum, surf_bel, c=taxon.map(colors), edgecolor='k')
+    axs2[i].set_yscale('log')
+    axs2[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
+    axs2[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
 
-ax1.set_title('Primate Cerebellum Volume against\nCerebellum Surface Area', fontsize=11)
-ax1.set_xlabel('Cerebellum Volume')
-ax1.set_ylabel('Cerebellum Surface Area')
+    ax_legend = axs2[i].legend(
+        title='Taxon',
+        title_fontsize='9',
+        handles=handles,
+        loc='upper left',
+        fontsize=10
+        )
 
-ax1_legend = ax1.legend(
-    title='Taxon',
-    title_fontsize='9',
-    handles=handles,
-    loc='upper left',
-    fontsize=10
-)
-ax1_legend.get_frame().set_color('w')
+    ax_legend.get_frame().set_color('white')
+    fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-ax2.scatter(vol_cerebrum, surf_bel, c=taxon.map(colors), edgecolor='k')
+fig1.savefig('Cerebellum Project Simple Plots.png', bbox_inches='tight')
+fig2.savefig('Cerebellum Project Logged Plots.png', bbox_inches='tight')
 
-ax2.set_title('Primate Cerebrum Volume against\nCerebellum Surface Area', fontsize=11)
-ax2.set_xlabel('Cerebrum Volume')
-ax2.set_ylabel('Cerebellum Surface Area')
-
-ax2_legend = ax2.legend(
-    title='Taxon',
-    title_fontsize='9',
-    handles=handles,
-    loc='upper left',
-    fontsize=10
-)
-ax2_legend.get_frame().set_color('w')
-
-fig1.savefig('Cerebellum Project Simple Plots.png')
-
-# start of logged plotting
-ax_logged.scatter(vol_cerebrum, vol_bellum, c=taxon.map(colors), edgecolor='k')
-
-ax_logged.set_xscale('log')
-ax_logged.get_xaxis().set_major_formatter(tk.ScalarFormatter())
-ax_logged.set_xticks([1, 5, 10, 20, 40, 80, 160])
-
-ax_logged.set_yscale('log')
-ax_logged.get_yaxis().set_major_formatter(tk.ScalarFormatter())
-ax_logged.set_yticks([10, 25, 50, 100, 250, 500, 1000])
-
-ax_logged.set_title('Logged Primate Cerebellum Volume against\nCerebrum Volume', fontsize=11)
-ax_logged.set_xlabel('Logged Cerebellum Volume')
-ax_logged.set_ylabel('Logged Cerebrum Volume')
-
-ax_logged_legend = ax_logged.legend(
-    title='Taxon',
-    title_fontsize='9',
-    handles=handles,
-    loc='upper left',
-    fontsize=10
-)
-ax_logged_legend.get_frame().set_color('w')
-
-ax1_logged.scatter(vol_bellum, surf_bel, c=taxon.map(colors), edgecolor='k')
-
-ax1_logged.set_xscale('log')
-ax1_logged.get_xaxis().set_major_formatter(tk.ScalarFormatter())
-ax1_logged.set_xticks([1, 5, 10, 20, 40, 80, 160, 400])
-
-ax1_logged.set_yscale('log')
-ax1_logged.get_yaxis().set_major_formatter(tk.ScalarFormatter())
-ax1_logged.set_yticks([10, 25, 50, 100, 200, 400])
-
-ax1_logged.set_title('Logged Primate Cerebellum Volume against\nCerebellum Surface Area', fontsize=11)
-ax1_logged.set_xlabel('Logged Cerebellum Volume')
-ax1_logged.set_ylabel('Logged Cerebellum Surface Area')
-
-ax1_logged_legend = ax1_logged.legend(
-    title='Taxon',
-    title_fontsize='9',
-    handles=handles,
-    loc='upper left',
-    fontsize=10
-)
-ax1_logged_legend.get_frame().set_color('w')
-
-ax2_logged.scatter(vol_cerebrum, surf_bel, c=taxon.map(colors), edgecolor='k')
-
-ax2_logged.set_xscale('log')
-ax2_logged.get_xaxis().set_major_formatter(tk.ScalarFormatter())
-ax2_logged.set_xticks([1, 5, 10, 20, 40, 60])
-
-ax2_logged.set_yscale('log')
-ax2_logged.get_yaxis().set_major_formatter(tk.ScalarFormatter())
-ax2_logged.set_yticks([10, 25, 50, 100, 200, 400])
-
-ax2_logged.set_title('Logged Primate Cerebrum Volume against\nCerebellum Surface Area', fontsize=11)
-ax2_logged.set_xlabel('Logged Cerebrum Volume')
-ax2_logged.set_ylabel('Logged Cerebellum Surface Area')
-
-ax2_logged_legend = ax2_logged.legend(
-    title='Taxon',
-    title_fontsize='9',
-    handles=handles,
-    loc='upper left',
-    fontsize=10
-)
-ax2_logged_legend.get_frame().set_color('w')
-
-fig2.savefig('Cerebellum Project Logged Plots.png')
-
-plt.tight_layout()
 plt.show()
