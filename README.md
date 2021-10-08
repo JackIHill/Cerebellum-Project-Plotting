@@ -1,5 +1,6 @@
 # CerebellumProject
 Correlation plots and logged plots for cerebellum and cerebrum morphology in primates.
+Run alongside csv file containing brain morphology to create two files; one with standard correlation plots, and one with logged plots. 
 
 ![AnnotationTransparent](https://user-images.githubusercontent.com/73407206/136446208-e2651756-359a-46e8-96cd-c526958828bb.png)
 
