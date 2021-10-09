@@ -93,6 +93,15 @@ def create_plot(col_combinations, logged=False):
                 ylabel=f'Logged {col_combinations[i][1]}'
             )
 
+            ax_legend = axs2[i].legend(
+                title='Taxon',
+                title_fontsize='9',
+                handles=handles,
+                loc='upper left',
+                fontsize=10
+            )
+            ax_legend.get_frame().set_color('white')
+
             axs2[i].set_xscale('log')
             axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
             axs2[i].set_xticks([1, 5, 10, 25, 50, 100, 200, 400])
