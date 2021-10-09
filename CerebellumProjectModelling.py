@@ -10,8 +10,10 @@ from matplotlib.lines import Line2D
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
 
+# TODO: make function take col_names list so they can choose.
+
 try:
-    data = pd.read_csv('all_species_values.csv', na_values='')
+    data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
     data = data.dropna(how='all', axis='columns').drop(columns='Source')
     data.rename(columns={
         'Species ': 'Species',
@@ -26,11 +28,6 @@ except FileNotFoundError:
           'in the same directory as this program.')
     sys.exit()
 
-vol_cerebrum = tuple(data['Cerebellum Volume'].astype(float))
-vol_bellum = tuple(data['Cerebrum Volume'].astype(float))
-surf_bel = tuple(data['Cerebellum Surface Area'].astype(float))
-
-taxon = data['Taxon']
 colors = {
     'Hominidae':  '#7f48b5',
     'Hylobatidae': '#c195ed',
@@ -38,8 +35,10 @@ colors = {
     'Platyrrhini': '#f2e3bd'
     }
 
-col_names = [list(data.columns)[4], list(data.columns)[3], list(data.columns)[1]]
-col_combinations_test = list(itertools.combinations(col_names, 2))
+# Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
+# Add '2' to index list below if want to include that column.
+col_names = data.columns.to_numpy()[[4, 3, 1]]
+var_combinations = tuple(itertools.combinations(col_names, 2))
 
 # Gives legend markers same color as predefined taxon colors
 handles = [
@@ -51,22 +50,24 @@ handles = [
         ]
 
 
-def create_plot(col_combinations, logged=False):
+def plot_data(xy=var_combinations, logged=False):
+
     plt.rcParams['xtick.minor.size'] = 0
     plt.rcParams['xtick.minor.width'] = 0
     plt.rcParams['ytick.minor.size'] = 0
     plt.rcParams['ytick.minor.width'] = 0
 
     if not logged:
-        fig1, axs1 = plt.subplots(1, (len(col_combinations)), figsize=(16, 5))
+        fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(16, 5), squeeze=False)
+        axs1 = axs1.flatten()
 
-        for i, (x, y) in enumerate(col_combinations):
-            axs1[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
+        for i, (x, y) in enumerate(xy):
+            axs1[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
 
             axs1[i].set(
-                title=f'Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
-                xlabel=f'{col_combinations[i][0]}',
-                ylabel=f'{col_combinations[i][1]}'
+                title=f'Primate {xy[i][0]} against\n{xy[i][1]}',
+                xlabel=f'{xy[i][0]}',
+                ylabel=f'{xy[i][1]}'
             )
 
             ax_legend = axs1[i].legend(
@@ -82,15 +83,16 @@ def create_plot(col_combinations, logged=False):
             fig1.savefig('Simple Cerebellum Project Plots.png', bbox_inches='tight')
 
     elif logged:
-        fig2, axs2 = plt.subplots(1, len(col_combinations), figsize=(16, 5))
+        fig2, axs2 = plt.subplots(1, len(xy), figsize=(16, 5), squeeze=True)
+        axs2 = axs2.flatten()
 
-        for i, (x, y) in enumerate(col_combinations):
-            axs2[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
+        for i, (x, y) in enumerate(xy):
+            axs2[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
 
             axs2[i].set(
-                title=f'Logged Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
-                xlabel=f'Logged {col_combinations[i][0]}',
-                ylabel=f'Logged {col_combinations[i][1]}'
+                title=f'Logged Primate {xy[i][0]} against\n{xy[i][1]}',
+                xlabel=f'Logged {xy[i][0]}',
+                ylabel=f'Logged {xy[i][1]}'
             )
 
             ax_legend = axs2[i].legend(
@@ -114,7 +116,13 @@ def create_plot(col_combinations, logged=False):
             fig2.savefig('Logged Cerebellum Project Plots.png', bbox_inches='tight')
 
 
-create_plot(col_combinations_test, logged=True)
-create_plot(col_combinations_test, logged=False)
+plot_data()
+
+plot_data(logged=True)
+
+plot_data((
+    ('Cerebellum Surface Area', 'Cerebrum Volume'),),
+    logged=True
+    )
 
 plt.show()
