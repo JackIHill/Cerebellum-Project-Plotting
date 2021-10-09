@@ -6,7 +6,7 @@ Run alongside csv file containing brain morphological data.
     - Produce 3 plots (all combinations for the relevant data). 
     - These 3 plots will not be logged.
     - Plots will output to a new window. 
-        - Hide 'plt.show()' to hide output. 
+    - Hide 'plt.show()' to hide output. 
 
 - If you wish to log each of the plots, pass logged=True into plot_variables().
 - If you want to manually plot data (from the csv), pass in a tuple containing (a) tuple(s) with variable pairs, like so: 
