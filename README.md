@@ -1,6 +1,21 @@
 # CerebellumProject
-Correlation plots and logged plots for cerebellum and cerebrum morphology in primates.
-Run alongside csv file containing brain morphology to create two files; one with standard correlation plots, and one with logged plots. 
+Create plots for cerebellar and cerebral morphology in a range of primates.
+Run alongside csv file containing brain morphology.
+
+- Calling the plot_variables() function without passing any arguments will by default:
+    - Produce 3 plots (all combinations for the relevant data). 
+    - These 3 plots will not be logged. 
+
+- If you wish to log each of the plots, pass logged=True into plot_variables().
+- If you want to manually plot data (from the csv), pass in a tuple containing (a) tuple(s) with variable pairs, like so: 
+    - plot_variables((
+                      ('Cerebrum Volume', 'Cerebellum Volume'),),
+                      logged=True
+                      )
+- Plots will automatically be saved to a png file. One for simple plots, and one for logged plots. 
+    - For now, this file will be overwritten each time a function is called.
+    - This will be ammended in a future update to create new PNG files each time. 
+
 
 ![AnnotationTransparent](https://user-images.githubusercontent.com/73407206/136446208-e2651756-359a-46e8-96cd-c526958828bb.png)
 
