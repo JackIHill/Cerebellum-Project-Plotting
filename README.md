@@ -1,6 +1,6 @@
 # CerebellumProject
 Create plots for cerebellar and cerebral morphology in a range of primates.
-Run alongside csv file containing brain morphology.
+Run alongside csv file containing brain morphological data.
 
 - Calling the plot_variables() function without passing any arguments will by default:
     - Produce 3 plots (all combinations for the relevant data). 
