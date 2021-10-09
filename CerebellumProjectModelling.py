@@ -39,78 +39,73 @@ colors = {
     }
 
 col_names = [list(data.columns)[4], list(data.columns)[3], list(data.columns)[1]]
-col_combinations = list(itertools.combinations(col_names, 2))
-
-fig1, axs1 = plt.subplots(1, 3, figsize=(16, 5))
+col_combinations_test = list(itertools.combinations(col_names, 2))
 
 # Gives legend markers same color as predefined taxon colors
 handles = [
-    Line2D(
-        [0], [0],
-        color='w', marker='o', markerfacecolor=v,
-        markeredgecolor='k',  markeredgewidth='0.5',
-        markersize=4, label=k,
-        ) for k, v in colors.items()
-    ]
+    Line2D([0], [0],
+           color='w', marker='o', markerfacecolor=v,
+           markeredgecolor='k',  markeredgewidth='0.5',
+           markersize=4, label=k,
+           ) for k, v in colors.items()
+        ]
 
-# Start of simple plotting
-for i, (x, y) in enumerate(col_combinations):
-    axs1[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
 
-    axs1[i].set_title(
-        f'Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
-        fontsize=11
-        )
+def create_plot(col_combinations, logged=False):
+    plt.rcParams['xtick.minor.size'] = 0
+    plt.rcParams['xtick.minor.width'] = 0
+    plt.rcParams['ytick.minor.size'] = 0
+    plt.rcParams['ytick.minor.width'] = 0
 
-    axs1[i].set_xlabel(f'{col_combinations[i][0]}')
-    axs1[i].set_ylabel(f'{col_combinations[i][1]}')
+    if not logged:
+        fig1, axs1 = plt.subplots(1, (len(col_combinations)), figsize=(16, 5))
 
-    ax_legend = axs1[i].legend(
-        title='Taxon',
-        title_fontsize='9',
-        handles=handles,
-        loc='upper left',
-        fontsize=10
-        )
+        for i, (x, y) in enumerate(col_combinations):
+            axs1[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
 
-    ax_legend.get_frame().set_color('white')
-    fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+            axs1[i].set(
+                title=f'Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
+                xlabel=f'{col_combinations[i][0]}',
+                ylabel=f'{col_combinations[i][1]}'
+            )
 
-# change figsize=(x, y) to suit your monitor/needs.
-fig2, axs2 = plt.subplots(1, 3, figsize=(16, 5))
+            ax_legend = axs1[i].legend(
+                title='Taxon',
+                title_fontsize='9',
+                handles=handles,
+                loc='upper left',
+                fontsize=10
+            )
+            ax_legend.get_frame().set_color('white')
 
-# Start of logged plotting
-for i, (x, y) in enumerate(col_combinations):
-    axs2[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
+            fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+            fig1.savefig('Simple Cerebellum Project Plots.png', bbox_inches='tight')
 
-    axs2[i].set_title(
-        f'Logged Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
-        fontsize=11
-        )
+    elif logged:
+        fig2, axs2 = plt.subplots(1, len(col_combinations), figsize=(16, 5))
 
-    axs2[i].set_xlabel(f'Logged {col_combinations[i][0]}')
-    axs2[i].set_ylabel(f'Logged {col_combinations[i][1]}')
+        for i, (x, y) in enumerate(col_combinations):
+            axs2[i].scatter(data[x], data[y], c=taxon.map(colors), edgecolor='k')
 
-    axs2[i].set_xscale('log')
-    axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
-    axs2[i].set_xticks([1, 5, 10, 25, 50, 100, 200, 400])
+            axs2[i].set(
+                title=f'Logged Primate {col_combinations[i][0]} against\n{col_combinations[i][1]}',
+                xlabel=f'Logged {col_combinations[i][0]}',
+                ylabel=f'Logged {col_combinations[i][1]}'
+            )
 
-    axs2[i].set_yscale('log')
-    axs2[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
-    axs2[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
+            axs2[i].set_xscale('log')
+            axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
+            axs2[i].set_xticks([1, 5, 10, 25, 50, 100, 200, 400])
 
-    ax_legend = axs2[i].legend(
-        title='Taxon',
-        title_fontsize='9',
-        handles=handles,
-        loc='upper left',
-        fontsize=10
-        )
+            axs2[i].set_yscale('log')
+            axs2[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
+            axs2[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
 
-    ax_legend.get_frame().set_color('white')
-    fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+            fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+            fig2.savefig('Logged Cerebellum Project Plots.png', bbox_inches='tight')
 
-fig1.savefig('Cerebellum Project Simple Plots.png', bbox_inches='tight')
-fig2.savefig('Cerebellum Project Logged Plots.png', bbox_inches='tight')
+
+create_plot(col_combinations_test, logged=True)
+create_plot(col_combinations_test, logged=False)
 
 plt.show()
