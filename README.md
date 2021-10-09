@@ -14,7 +14,7 @@ Run alongside csv file containing brain morphology.
                       )
 - Plots will automatically be saved to a png file. One for simple plots, and one for logged plots. 
     - For now, this file will be overwritten each time a function is called.
-    - This will be ammended in a future update to create new PNG files each time. 
+    - This will be amended in a future update to create new PNG files each time. 
 
 ![AnnotationTransparent](https://user-images.githubusercontent.com/73407206/136446208-e2651756-359a-46e8-96cd-c526958828bb.png)
 
