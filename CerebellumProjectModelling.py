@@ -1,6 +1,7 @@
 
 import os
 import sys
+import time
 import itertools
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -147,24 +148,38 @@ def plot_variables(xy=var_combinations, logged=False):
 
             fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-        save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+        save_check = input('Do you wish to save this plot? (Y/N) ')
 
-        if not os.path.exists(save_folder):
-            os.makedirs(save_folder)
+        if save_check.lower() == 'y':
+            save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+            if not os.path.exists(save_folder):
+                os.makedirs(save_folder)
 
-        png_id = 0
+            png_id = 0
 
-        if xy is var_combinations:
-            while os.path.exists(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png'):
-                png_id += 1
-            plt.savefig(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png')
+            if xy is var_combinations:
+                while os.path.exists(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png'):
+                    png_id += 1
+                plt.savefig(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png')
+
+            else:
+                while os.path.exists(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png'):
+                    png_id += 1
+                plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
+
+            print('Saved!')
+            sys.exit()
+
+        elif save_check.lower() == 'n':
+            print('Figures not saved. '
+                  'Call plt.show() to instead output figures to a new window.')
+            sys.exit()
+
         else:
-            while os.path.exists(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png'):
-                png_id += 1
-            plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
+            print('Invalid Input. Enter Y or N: ')
 
 
-plot_variables()
+# plot_variables()
 plot_variables(logged=True)
 
 plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
