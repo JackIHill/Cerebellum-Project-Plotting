@@ -1,4 +1,5 @@
 
+import os
 import sys
 import itertools
 import pandas as pd
@@ -9,8 +10,6 @@ from matplotlib.lines import Line2D
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
-
-# TODO: make function take col_names list so they can choose.
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -99,7 +98,22 @@ def plot_variables(xy=var_combinations, logged=False):
             ax_legend.get_frame().set_color('white')
 
             fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-            fig1.savefig('Simple Cerebellum Project Plots.png', bbox_inches='tight')
+
+        save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
+
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
+
+        png_id = 0
+
+        if xy is var_combinations:
+            while os.path.exists(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png'):
+                png_id += 1
+            plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png')
+        else:
+            while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png'):
+                png_id += 1
+            plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png')
 
     elif logged:
         fig2, axs2 = plt.subplots(1, len(xy), figsize=(fig_width, 4), squeeze=False)
@@ -132,16 +146,27 @@ def plot_variables(xy=var_combinations, logged=False):
             axs2[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
 
             fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-            fig2.savefig('Logged Cerebellum Project Plots.png', bbox_inches='tight')
+
+        save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
+
+        png_id = 0
+
+        if xy is var_combinations:
+            while os.path.exists(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png'):
+                png_id += 1
+            plt.savefig(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png')
+        else:
+            while os.path.exists(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png'):
+                png_id += 1
+            plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
 
 
-plot_data()
+plot_variables()
+plot_variables(logged=True)
 
-plot_data(logged=True)
+plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
-plot_data((
-    ('Cerebellum Surface Area', 'Cerebrum Volume'),),
-    logged=True
-    )
-
-plt.show()
+# plt.show()
