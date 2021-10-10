@@ -50,17 +50,36 @@ handles = [
         ]
 
 
-def plot_data(xy=var_combinations, logged=False):
+def plot_variables(xy=var_combinations, logged=False):
+
+    category_size = None
+    right_margin = None
+    left_margin = None
+
+    if len(xy) == 1:
+        category_size = 0.1
+        left_margin = 2.5
+        right_margin = 2.5
+    elif len(xy) == 2:
+        category_size = 1.5
+        left_margin = 2.5
+        right_margin = 3.5
+    elif len(xy) == 3:
+        category_size = 2
+        left_margin = 2.5
+        right_margin = 5
+
+    fig_width = left_margin + right_margin + len(xy)*category_size
 
     plt.rcParams['xtick.minor.size'] = 0
     plt.rcParams['xtick.minor.width'] = 0
     plt.rcParams['ytick.minor.size'] = 0
     plt.rcParams['ytick.minor.width'] = 0
 
-    if not logged:
-        fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(16, 5), squeeze=False)
-        axs1 = axs1.flatten()
+    fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(fig_width, 4), squeeze=False)
+    axs1 = axs1.flatten()
 
+    if not logged:
         for i, (x, y) in enumerate(xy):
             axs1[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
 
@@ -83,7 +102,7 @@ def plot_data(xy=var_combinations, logged=False):
             fig1.savefig('Simple Cerebellum Project Plots.png', bbox_inches='tight')
 
     elif logged:
-        fig2, axs2 = plt.subplots(1, len(xy), figsize=(16, 5), squeeze=True)
+        fig2, axs2 = plt.subplots(1, len(xy), figsize=(fig_width, 4), squeeze=False)
         axs2 = axs2.flatten()
 
         for i, (x, y) in enumerate(xy):
