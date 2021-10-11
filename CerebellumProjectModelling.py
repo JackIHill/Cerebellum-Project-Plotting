@@ -1,16 +1,19 @@
 
 import os
 import sys
-import time
 import itertools
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
+from multiprocessing import Process
 
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
+
+# TODO:
+#  Requirements.txt
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -120,12 +123,12 @@ def plot_variables(xy=var_combinations, logged=False):
                     plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png')
 
                 print('Plots Saved!')
-                sys.exit()
+                break
 
             elif save_check.lower() == 'n':
                 print('Figures not saved. '
                       'Call plt.show() to instead output figures to a new window.')
-                sys.exit()
+                break
 
             print('Invalid Input - enter "Y" or "N": ')
 
@@ -181,12 +184,12 @@ def plot_variables(xy=var_combinations, logged=False):
                     plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
 
                 print('Plots Saved!')
-                sys.exit()
+                break
 
             elif save_check.lower() == 'n':
                 print('Figures not saved. '
                       'Call plt.show() to instead output figures to a new window.')
-                sys.exit()
+                break
 
             print('Invalid Input - enter "Y" or "N": ')
 
@@ -202,12 +205,11 @@ def delete_folder(logged=None):
 
 
 plot_variables()
-plot_variables(logged=True)
-
+# plot_variables(logged=True)
 
 # plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
-# delete_folder()
+delete_folder()
+delete_folder(logged=True)
 
-
-# plt.show()
+plt.show()
