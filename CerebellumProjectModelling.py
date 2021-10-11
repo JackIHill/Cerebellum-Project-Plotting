@@ -1,21 +1,19 @@
 
 import os
 import sys
-import time
 import itertools
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
+from multiprocessing import Process
 
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
 
-# TODO: Make it so you can choose whether you want to save (with user input)
-#  Make function to let people clear the save folder when called.
+# TODO:
 #  Requirements.txt
-#  Fix input bug - (needs to return back to the initial user input). IN ELSE BLOCK.
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -105,35 +103,34 @@ def plot_variables(xy=var_combinations, logged=False):
 
             fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-        save_check = input('Do you wish to save this plot? (Y/N) ')
+        while True:
+            save_check = input('Do you wish to save this simple plot? (Y/N) ')
 
-        if save_check.lower() == 'y':
-            save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+            if save_check.lower() == 'y':
+                save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
+                if not os.path.exists(save_folder):
+                    os.makedirs(save_folder)
 
-            png_id = 0
+                png_id = 0
+                if xy is var_combinations:
+                    while os.path.exists(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png'):
+                        png_id += 1
+                    plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png')
 
-            if xy is var_combinations:
-                while os.path.exists(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png'):
-                    png_id += 1
-                plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png')
+                else:
+                    while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png'):
+                        png_id += 1
+                    plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png')
 
-            else:
-                while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png'):
-                    png_id += 1
-                plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png')
+                print('Plots Saved!')
+                break
 
-            print('Plots Saved!')
-            sys.exit()
+            elif save_check.lower() == 'n':
+                print('Figures not saved. '
+                      'Call plt.show() to instead output figures to a new window.')
+                break
 
-        elif save_check.lower() == 'n':
-            print('Figures not saved. '
-                  'Call plt.show() to instead output figures to a new window.')
-            sys.exit()
-
-        else:
-            print('Invalid Input. Enter Y or N: ')
+            print('Invalid Input - enter "Y" or "N": ')
 
     elif logged:
         fig2, axs2 = plt.subplots(1, len(xy), figsize=(fig_width, 4), squeeze=False)
@@ -167,40 +164,52 @@ def plot_variables(xy=var_combinations, logged=False):
 
             fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-        save_check = input('Do you wish to save this plot? (Y/N) ')
+        while True:
+            save_check = input('Do you wish to save this log plot? (Y/N) ')
 
-        if save_check.lower() == 'y':
-            save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+            if save_check.lower() == 'y':
+                save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+                if not os.path.exists(save_folder):
+                    os.makedirs(save_folder)
 
-            png_id = 0
+                png_id = 0
+                if xy is var_combinations:
+                    while os.path.exists(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png'):
+                        png_id += 1
+                    plt.savefig(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png')
 
-            if xy is var_combinations:
-                while os.path.exists(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png'):
-                    png_id += 1
-                plt.savefig(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png')
+                else:
+                    while os.path.exists(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png'):
+                        png_id += 1
+                    plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
 
-            else:
-                while os.path.exists(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png'):
-                    png_id += 1
-                plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
+                print('Plots Saved!')
+                break
 
-            print('Plots Saved!')
-            sys.exit()
+            elif save_check.lower() == 'n':
+                print('Figures not saved. '
+                      'Call plt.show() to instead output figures to a new window.')
+                break
 
-        elif save_check.lower() == 'n':
-            print('Figures not saved. '
-                  'Call plt.show() to instead output figures to a new window.')
-            sys.exit()
+            print('Invalid Input - enter "Y" or "N": ')
 
-        else:
-            print('Invalid Input. Enter Y or N: ')
+
+def delete_folder(logged=None):
+    import shutil
+    if not logged:
+        folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
+        shutil.rmtree(folder)
+    else:
+        folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+        shutil.rmtree(folder)
 
 
 plot_variables()
 # plot_variables(logged=True)
-#
+
 # plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
-# plt.show()
+delete_folder()
+delete_folder(logged=True)
+
+plt.show()
