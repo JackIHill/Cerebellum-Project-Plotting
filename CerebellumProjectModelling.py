@@ -6,14 +6,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
-from multiprocessing import Process
 
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
-
-# TODO:
-#  Requirements.txt
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -79,10 +75,10 @@ def plot_variables(xy=var_combinations, logged=False):
     plt.rcParams['ytick.minor.size'] = 0
     plt.rcParams['ytick.minor.width'] = 0
 
-    fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(fig_width, 4), squeeze=False)
-    axs1 = axs1.flatten()
-
     if not logged:
+        fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(fig_width, 4), squeeze=False)
+        axs1 = axs1.flatten()
+
         for i, (x, y) in enumerate(xy):
             axs1[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
 
@@ -205,11 +201,11 @@ def delete_folder(logged=None):
 
 
 plot_variables()
-# plot_variables(logged=True)
+plot_variables(logged=True)
 
-# plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
+plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
-delete_folder()
-delete_folder(logged=True)
+# delete_folder()
+# delete_folder(logged=True)
 
 plt.show()
