@@ -2,6 +2,7 @@
 import os
 import sys
 import itertools
+import shutil
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
@@ -10,6 +11,11 @@ from matplotlib.lines import Line2D
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
+
+# TODO:
+#  add comments throughout
+#  add try except to check whether file/folder is properly saved (does it exist).
+#  same as above for delete function (ensure there is a folder to delete)
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -191,7 +197,6 @@ def plot_variables(xy=var_combinations, logged=False):
 
 
 def delete_folder(logged=None):
-    import shutil
     if not logged:
         folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
         shutil.rmtree(folder)
@@ -200,12 +205,12 @@ def delete_folder(logged=None):
         shutil.rmtree(folder)
 
 
-plot_variables()
-plot_variables(logged=True)
+# plot_variables()
+# plot_variables(logged=True)
 
-plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
+# plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
-# delete_folder()
-# delete_folder(logged=True)
+delete_folder()
+delete_folder(logged=True)
 
 plt.show()
