@@ -101,7 +101,10 @@ def plot_variables(xy=var_combinations, logged=False):
             fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
         while True:
-            save_check = input('Do you wish to save this simple plot? (Y/N) ')
+            if xy is var_combinations:
+                save_check = input('Do you wish to save the default configuration of simple plots? (Y/N) ')
+            else:
+                save_check = input(f'Do you wish to save {len(xy)} simple plot(s)? (Y/N) ')
 
             if save_check.lower() == 'y':
                 save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
@@ -165,7 +168,10 @@ def plot_variables(xy=var_combinations, logged=False):
             fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
         while True:
-            save_check = input('Do you wish to save this log plot? (Y/N) ')
+            if xy is var_combinations:
+                save_check = input('Do you wish to save the default configuration of log plots? (Y/N) ')
+            else:
+                save_check = input(f'Do you wish to save {len(xy)} log plot(s)? (Y/N) ')
 
             if save_check.lower() == 'y':
                 save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
@@ -199,15 +205,25 @@ def plot_variables(xy=var_combinations, logged=False):
 
 def delete_folder(logged=None):
     if not logged:
-        folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-        shutil.rmtree(folder)
+        try:
+            folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
+            shutil.rmtree(folder)
+        except FileNotFoundError:
+            print('No "Saved Simple Plots" folder exists in current working directory,'
+                  ' and so could not be deleted.')
     else:
-        folder = os.path.join(os.getcwd(), r'Saved Log Plots')
-        shutil.rmtree(folder)
+        try:
+            folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+            shutil.rmtree(folder)
+        except FileNotFoundError:
+            print('No "Saved Log Plots" folder exists in current working directory,'
+                  ' and so could not be deleted.')
 
+# plot_variables()
 
-plot_variables()
 # plot_variables(logged=True)
+
+
 plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
 # delete_folder()
