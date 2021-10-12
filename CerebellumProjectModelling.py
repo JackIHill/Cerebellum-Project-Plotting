@@ -102,9 +102,9 @@ def plot_variables(xy=var_combinations, logged=False):
 
         while True:
             if xy is var_combinations:
-                save_check = input('Do you wish to save the default configuration of simple plots? (Y/N) ')
+                save_check = input('Do you wish to save the default configuration of simple plots? (Y/N) ').strip()
             else:
-                save_check = input(f'Do you wish to save {len(xy)} simple plot(s)? (Y/N) ')
+                save_check = input(f'Do you wish to save {len(xy)} simple plot(s)? (Y/N) ').strip()
 
             if save_check.lower() == 'y':
                 save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
@@ -169,9 +169,9 @@ def plot_variables(xy=var_combinations, logged=False):
 
         while True:
             if xy is var_combinations:
-                save_check = input('Do you wish to save the default configuration of log plots? (Y/N) ')
+                save_check = input('Do you wish to save the default configuration of log plots? (Y/N) ').strip()
             else:
-                save_check = input(f'Do you wish to save {len(xy)} log plot(s)? (Y/N) ')
+                save_check = input(f'Do you wish to save {len(xy)} log plot(s)? (Y/N) ').strip()
 
             if save_check.lower() == 'y':
                 save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
