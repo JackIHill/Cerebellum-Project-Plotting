@@ -114,7 +114,7 @@ def plot_variables(xy=var_combinations, logged=False):
                         png_id += 1
                     plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png')
 
-                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Default Plots")}')
+                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
 
                 else:
                     while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png'):
@@ -178,7 +178,7 @@ def plot_variables(xy=var_combinations, logged=False):
                         png_id += 1
                     plt.savefig(f'Saved Log Plots/{"Default Log Plots - "}{png_id:d}.png')
 
-                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Default Log Plots")}')
+                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
                 else:
                     while os.path.exists(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}{png_id:d}.png'):
