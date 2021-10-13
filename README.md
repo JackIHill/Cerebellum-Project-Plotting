@@ -4,7 +4,7 @@ Run alongside csv file containing brain morphological data.
 
 - Calling the plot_variables() function without passing any arguments will by default:
     - Produce 3 plots (all combinations for the relevant data). 
-    - These 3 plots will not be logged.
+    - These 3 plots will not be logged unless specified otherwise.
     - Plots will output to a new window. 
     - Hide 'plt.show()' to hide output. 
 
