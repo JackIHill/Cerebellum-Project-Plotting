@@ -12,11 +12,6 @@ from matplotlib.lines import Line2D
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
 comment out 'plt.show()' at end of file to save only."""
 
-# TODO:
-#  add comments throughout
-#  add try except to check whether file/folder is properly saved (does it exist).
-#  same as above for delete function (ensure there is a folder to delete)
-
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
     data = data.dropna(how='all', axis='columns').drop(columns='Source')
@@ -29,7 +24,7 @@ try:
         }, inplace=True)
 
 except FileNotFoundError:
-    print('Please ensure you have the \'all_species_values.csv\' '
+    print('CSV not found. Please ensure you have the \'all_species_values.csv\' '
           'in the same directory as this program.')
     sys.exit()
 
@@ -106,7 +101,10 @@ def plot_variables(xy=var_combinations, logged=False):
             fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
         while True:
-            save_check = input('Do you wish to save this simple plot? (Y/N) ')
+            if xy is var_combinations:
+                save_check = input('Do you wish to save the default configuration of simple plots? (Y/N) ').strip()
+            else:
+                save_check = input(f'Do you wish to save {len(xy)} simple plot(s)? (Y/N) ').strip()
 
             if save_check.lower() == 'y':
                 save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
@@ -119,12 +117,15 @@ def plot_variables(xy=var_combinations, logged=False):
                         png_id += 1
                     plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png')
 
+                    print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+
                 else:
                     while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png'):
                         png_id += 1
                     plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png')
 
-                print('Plots Saved!')
+                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+
                 break
 
             elif save_check.lower() == 'n':
@@ -158,7 +159,11 @@ def plot_variables(xy=var_combinations, logged=False):
 
             axs2[i].set_xscale('log')
             axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
-            axs2[i].set_xticks([1, 5, 10, 25, 50, 100, 200, 400])
+            
+            if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
+                axs2[i].set_xticks([5, 10, 25, 50, 100, 200, 400, 1000])
+            else:
+                axs2[i].set_xticks([5, 10, 25, 50, 100, 200, 400])
 
             axs2[i].set_yscale('log')
             axs2[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
@@ -167,7 +172,10 @@ def plot_variables(xy=var_combinations, logged=False):
             fig2.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
         while True:
-            save_check = input('Do you wish to save this log plot? (Y/N) ')
+            if xy is var_combinations:
+                save_check = input('Do you wish to save the default configuration of log plots? (Y/N) ').strip()
+            else:
+                save_check = input(f'Do you wish to save {len(xy)} log plot(s)? (Y/N) ').strip()
 
             if save_check.lower() == 'y':
                 save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
@@ -176,16 +184,19 @@ def plot_variables(xy=var_combinations, logged=False):
 
                 png_id = 0
                 if xy is var_combinations:
-                    while os.path.exists(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png'):
+                    while os.path.exists(f'Saved Log Plots/{"Default Log Plots - "}{png_id:d}.png'):
                         png_id += 1
-                    plt.savefig(f'Saved Log Plots/{"Logged Default Plots - "}{png_id:d}.png')
+                    plt.savefig(f'Saved Log Plots/{"Default Log Plots - "}{png_id:d}.png')
+
+                    print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
                 else:
-                    while os.path.exists(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png'):
+                    while os.path.exists(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}{png_id:d}.png'):
                         png_id += 1
-                    plt.savefig(f'Saved Log Plots/{len(xy)} {"Logged Plot(s) - "}{png_id:d}.png')
+                    plt.savefig(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}{png_id:d}.png')
 
-                print('Plots Saved!')
+                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+
                 break
 
             elif save_check.lower() == 'n':
@@ -198,19 +209,28 @@ def plot_variables(xy=var_combinations, logged=False):
 
 def delete_folder(logged=None):
     if not logged:
-        folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-        shutil.rmtree(folder)
+        try:
+            folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
+            shutil.rmtree(folder)
+        except FileNotFoundError:
+            print('No "Saved Simple Plots" folder exists in current working directory,'
+                  ' and so could not be deleted.')
     else:
-        folder = os.path.join(os.getcwd(), r'Saved Log Plots')
-        shutil.rmtree(folder)
-
+        try:
+            folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+            shutil.rmtree(folder)
+        except FileNotFoundError:
+            print('No "Saved Log Plots" folder exists in current working directory,'
+                  ' and so could not be deleted.')
 
 # plot_variables()
-# plot_variables(logged=True)
 
-# plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
+plot_variables(logged=True)
 
-delete_folder()
-delete_folder(logged=True)
+plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
+
+# delete_folder()
+# delete_folder(logged=True)
 
 plt.show()
+
