@@ -21,7 +21,7 @@ try:
         'CerebrumSurfaceArea': 'Cerebrum Surface Area',
         'CerebellumVolume ': 'Cerebellum Volume',
         'CerebrumVolume': 'Cerebrum Volume'
-        }, inplace=True)
+    }, inplace=True)
 
 except FileNotFoundError:
     print('CSV not found. Please ensure you have the \'all_species_values.csv\' '
@@ -29,11 +29,11 @@ except FileNotFoundError:
     sys.exit()
 
 colors = {
-    'Hominidae':  '#7f48b5',
+    'Hominidae': '#7f48b5',
     'Hylobatidae': '#c195ed',
     'Cercopithecidae': '#f0bb3e',
     'Platyrrhini': '#f2e3bd'
-    }
+}
 
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to index list below if want to include that column.
@@ -44,18 +44,18 @@ var_combinations = tuple(itertools.combinations(col_names, 2))
 handles = [
     Line2D([0], [0],
            color='w', marker='o', markerfacecolor=v,
-           markeredgecolor='k',  markeredgewidth='0.5',
+           markeredgecolor='k', markeredgewidth='0.5',
            markersize=4, label=k,
            ) for k, v in colors.items()
-        ]
+]
 
 
-def plot_variables(xy=var_combinations, logged=False):
-
+def plot_variables(xy=var_combinations, logged=None):
     category_size = None
     right_margin = None
     left_margin = None
 
+    # sets scaling properties for each number of axes in a figure.
     if len(xy) == 1:
         category_size = 0.1
         left_margin = 2.5
@@ -69,7 +69,7 @@ def plot_variables(xy=var_combinations, logged=False):
         left_margin = 2.5
         right_margin = 5
 
-    fig_width = left_margin + right_margin + len(xy)*category_size
+    fig_width = left_margin + right_margin + len(xy) * category_size
 
     plt.rcParams['xtick.minor.size'] = 0
     plt.rcParams['xtick.minor.width'] = 0
@@ -159,7 +159,8 @@ def plot_variables(xy=var_combinations, logged=False):
 
             axs2[i].set_xscale('log')
             axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
-            
+
+            # These variables need custom xticks to better represent the range of values.
             if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
                 axs2[i].set_xticks([5, 10, 25, 50, 100, 200, 400, 1000])
             else:
@@ -223,14 +224,12 @@ def delete_folder(logged=None):
             print('No "Saved Log Plots" folder exists in current working directory,'
                   ' and so could not be deleted.')
 
+
 # plot_variables()
-
 plot_variables(logged=True)
-
 plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
 
 # delete_folder()
 # delete_folder(logged=True)
 
 plt.show()
-
