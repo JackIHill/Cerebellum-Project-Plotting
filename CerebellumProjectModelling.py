@@ -111,7 +111,7 @@ def plot_variables(xy=var_combinations, logged=None):
                 if not os.path.exists(save_folder):
                     os.makedirs(save_folder)
 
-                png_id = 0
+                png_id = 1
                 if xy is var_combinations:
                     while os.path.exists(f'Saved Simple Plots/Simple Default Plots - #{png_id:d}.png'):
                         png_id += 1
@@ -189,7 +189,7 @@ def plot_variables(xy=var_combinations, logged=None):
                 if not os.path.exists(save_folder):
                     os.makedirs(save_folder)
 
-                png_id = 0
+                png_id = 1
                 if xy is var_combinations:
                     while os.path.exists(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png'):
                         png_id += 1
