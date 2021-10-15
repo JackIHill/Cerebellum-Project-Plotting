@@ -113,18 +113,24 @@ def plot_variables(xy=var_combinations, logged=None):
 
                 png_id = 0
                 if xy is var_combinations:
-                    while os.path.exists(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png'):
+                    while os.path.exists(f'Saved Simple Plots/{"Simple Default Plots - "}#{png_id:d}.png'):
                         png_id += 1
-                    plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}{png_id:d}.png')
+                    plt.savefig(f'Saved Simple Plots/{"Simple Default Plots - "}#{png_id:d}.png')
 
                     print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
 
                 else:
-                    while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png'):
+                    while os.path.exists(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}#{png_id:d}.png'):
                         png_id += 1
-                    plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}{png_id:d}.png')
+                    plt.savefig(f'Saved Simple Plots/{len(xy)} {"Simple Plot(s) - "}#{png_id:d}.png')
 
-                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+                with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
+                    my_list = [x for x in xy]
+                    if xy is not var_combinations:
+                        save_details.write(f'{len(xy)} {"Simple Plot(s) - "}#{png_id:d}'
+                                           f' - {*my_list,}\n')
+
+                        print(f'Simple Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
 
                 break
 
@@ -185,18 +191,24 @@ def plot_variables(xy=var_combinations, logged=None):
 
                 png_id = 0
                 if xy is var_combinations:
-                    while os.path.exists(f'Saved Log Plots/{"Default Log Plots - "}{png_id:d}.png'):
+                    while os.path.exists(f'Saved Log Plots/{"Default Log Plots - "}#{png_id:d}.png'):
                         png_id += 1
-                    plt.savefig(f'Saved Log Plots/{"Default Log Plots - "}{png_id:d}.png')
+                    plt.savefig(f'Saved Log Plots/{"Default Log Plots - "}#{png_id:d}.png')
 
                     print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
                 else:
-                    while os.path.exists(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}{png_id:d}.png'):
+                    while os.path.exists(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}#{png_id:d}.png'):
                         png_id += 1
-                    plt.savefig(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}{png_id:d}.png')
+                    plt.savefig(f'Saved Log Plots/{len(xy)} {"Log Plot(s) - "}#{png_id:d}.png')
 
-                    print(f'Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
+                    my_list = [x for x in xy]
+                    if xy is not var_combinations:
+                        save_details.write(f'{len(xy)} {"log Plot(s) - "}#{png_id:d}'
+                                           f' - {*my_list,}\n')
+
+                    print(f'Log Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
                 break
 
@@ -226,8 +238,10 @@ def delete_folder(logged=None):
 
 
 # plot_variables()
-plot_variables(logged=True)
-plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),), logged=True)
+# plot_variables(logged=True)
+plot_variables((('Cerebrum Volume', 'Cerebellum Volume'), ('Cerebellum Surface Area', 'Cerebrum Volume')))
+plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),
+                ('Cerebellum Surface Area', 'Cerebrum Volume')), logged=True)
 
 # delete_folder()
 # delete_folder(logged=True)
