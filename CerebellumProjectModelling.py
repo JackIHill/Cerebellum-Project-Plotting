@@ -126,18 +126,17 @@ def plot_variables(xy=var_combinations, logged=None):
                         png_id += 1
                     plt.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
 
-                with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
-                    var_list = [x for x in xy]
-                    if xy is not var_combinations:
+                    with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
+                        var_list = [x for x in xy]
+                        if xy is not var_combinations:
 
-                        save_details.write(
-                            f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                            f' - {*var_list,}\n'
-                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                            )
-
-                        print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
-
+                            save_details.write(
+                                f'{len(xy)} Simple Plot(s) - #{png_id:d}'
+                                f' - {*var_list,}\n'
+                                f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                                )
+    
+                            print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
                 break
 
             elif save_check.lower() == 'n':
@@ -208,18 +207,17 @@ def plot_variables(xy=var_combinations, logged=None):
                         png_id += 1
                     plt.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
 
-                with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
-                    var_list = [x for x in xy]
-                    if xy is not var_combinations:
-
-                        save_details.write(
-                            f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                            f' - {*var_list,}\n'
-                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                            )
-
-                        print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
-
+                    with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
+                        var_list = [x for x in xy]
+                        if xy is not var_combinations:
+    
+                            save_details.write(
+                                f'{len(xy)} Log Plot(s) - #{png_id:d}'
+                                f' - {*var_list,}\n'
+                                f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                                )
+    
+                            print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
                 break
 
             elif save_check.lower() == 'n':
@@ -256,4 +254,4 @@ plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),
 # delete_folder()
 # delete_folder(logged=True)
 
-plt.show()
+# plt.show()
