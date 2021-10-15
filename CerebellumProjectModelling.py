@@ -127,12 +127,12 @@ def plot_variables(xy=var_combinations, logged=None):
                     plt.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
 
                 with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
-                    my_list = [x for x in xy]
+                    var_list = [x for x in xy]
                     if xy is not var_combinations:
 
                         save_details.write(
                             f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                            f' - {*my_list,}\n'
+                            f' - {*var_list,}\n'
                             f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                             )
 
@@ -209,16 +209,16 @@ def plot_variables(xy=var_combinations, logged=None):
                     plt.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
 
                 with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
-                    my_list = [x for x in xy]
+                    var_list = [x for x in xy]
                     if xy is not var_combinations:
 
                         save_details.write(
                             f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                            f' - {*my_list,}\n'
+                            f' - {*var_list,}\n'
                             f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                             )
 
-                            print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                        print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
                 break
 
