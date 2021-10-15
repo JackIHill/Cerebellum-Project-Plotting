@@ -3,10 +3,12 @@ import os
 import sys
 import itertools
 import shutil
+from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
+
 
 """Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
 Saves simple and logged plots to separate files. Will by default open windows with each figure,
@@ -21,7 +23,7 @@ try:
         'CerebrumSurfaceArea': 'Cerebrum Surface Area',
         'CerebellumVolume ': 'Cerebellum Volume',
         'CerebrumVolume': 'Cerebrum Volume'
-    }, inplace=True)
+        }, inplace=True)
 
 except FileNotFoundError:
     print('CSV not found. Please ensure you have the \'all_species_values.csv\' '
@@ -33,7 +35,7 @@ colors = {
     'Hylobatidae': '#c195ed',
     'Cercopithecidae': '#f0bb3e',
     'Platyrrhini': '#f2e3bd'
-}
+    }
 
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to index list below if want to include that column.
@@ -47,7 +49,7 @@ handles = [
            markeredgecolor='k', markeredgewidth='0.5',
            markersize=4, label=k,
            ) for k, v in colors.items()
-]
+          ]
 
 
 def plot_variables(xy=var_combinations, logged=None):
@@ -87,7 +89,7 @@ def plot_variables(xy=var_combinations, logged=None):
                 title=f'Primate {xy[i][0]} against\n{xy[i][1]}',
                 xlabel=f'{xy[i][0]}',
                 ylabel=f'{xy[i][1]}'
-            )
+                )
 
             ax_legend = axs1[i].legend(
                 title='Taxon',
@@ -95,7 +97,7 @@ def plot_variables(xy=var_combinations, logged=None):
                 handles=handles,
                 loc='upper left',
                 fontsize=10
-            )
+                )
             ax_legend.get_frame().set_color('white')
 
             fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
@@ -127,10 +129,14 @@ def plot_variables(xy=var_combinations, logged=None):
                 with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
                     my_list = [x for x in xy]
                     if xy is not var_combinations:
-                        save_details.write(f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                                           f' - {*my_list,}\n')
 
-                        print(f'Simple Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+                        save_details.write(
+                            f'{len(xy)} Simple Plot(s) - #{png_id:d}'
+                            f' - {*my_list,}\n'
+                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                            )
+
+                        print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
 
                 break
 
@@ -152,7 +158,7 @@ def plot_variables(xy=var_combinations, logged=None):
                 title=f'Logged Primate {xy[i][0]} against\n{xy[i][1]}',
                 xlabel=f'Logged {xy[i][0]}',
                 ylabel=f'Logged {xy[i][1]}'
-            )
+                )
 
             ax_legend = axs2[i].legend(
                 title='Taxon',
@@ -160,7 +166,7 @@ def plot_variables(xy=var_combinations, logged=None):
                 handles=handles,
                 loc='upper left',
                 fontsize=10
-            )
+                )
             ax_legend.get_frame().set_color('white')
 
             axs2[i].set_xscale('log')
@@ -205,10 +211,14 @@ def plot_variables(xy=var_combinations, logged=None):
                 with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
                     my_list = [x for x in xy]
                     if xy is not var_combinations:
-                        save_details.write(f'{len(xy)} log Plot(s) - #{png_id:d}'
-                                           f' - {*my_list,}\n')
 
-                    print(f'Log Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                        save_details.write(
+                            f'{len(xy)} Log Plot(s) - #{png_id:d}'
+                            f' - {*my_list,}\n'
+                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                            )
+
+                            print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
                 break
 
