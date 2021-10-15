@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+This script is used to create simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
+You will be given the option to save simple and logged plots (to separate folders).
+"""
 
 import os
 import sys
@@ -8,11 +13,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
-
-
-"""Simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
-Saves simple and logged plots to separate files. Will by default open windows with each figure,
-comment out 'plt.show()' at end of file to save only."""
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -53,6 +53,13 @@ handles = [
 
 
 def plot_variables(xy=var_combinations, logged=None):
+    """
+    - Plots brain morphology variables.
+    - Pass no arguments to plot 3 default plots.
+    - Pass logged=True with no arguments to log these default plots.
+    - Pass a tuple containing tuples which contain variable pairs to plot custom variables, like so:
+    - plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),)).
+    """
     category_size = None
     right_margin = None
     left_margin = None
@@ -135,13 +142,13 @@ def plot_variables(xy=var_combinations, logged=None):
                                 f' - {*var_list,}\n'
                                 f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                                 )
-    
+
                             print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
                 break
 
             elif save_check.lower() == 'n':
                 print('Figures not saved. '
-                      'Call plt.show() to instead output figures to a new window.')
+                      'Call show_plots() to instead output figures to a new window.')
                 break
 
             print('Invalid Input - enter "Y" or "N": ')
@@ -210,25 +217,26 @@ def plot_variables(xy=var_combinations, logged=None):
                     with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
                         var_list = [x for x in xy]
                         if xy is not var_combinations:
-    
+
                             save_details.write(
                                 f'{len(xy)} Log Plot(s) - #{png_id:d}'
                                 f' - {*var_list,}\n'
                                 f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                                 )
-    
+
                             print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
                 break
 
             elif save_check.lower() == 'n':
                 print('Figures not saved. '
-                      'Call plt.show() to instead output figures to a new window.')
+                      'Call show_plots() to instead output figures to a new window.')
                 break
 
             print('Invalid Input - enter "Y" or "N": ')
 
 
 def delete_folder(logged=None):
+    """Deletes simple or log save folder depending on if logged=True is passed as an argument."""
     if not logged:
         try:
             folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
@@ -245,13 +253,11 @@ def delete_folder(logged=None):
                   ' and so could not be deleted.')
 
 
-# plot_variables()
-# plot_variables(logged=True)
-plot_variables((('Cerebrum Volume', 'Cerebellum Volume'), ('Cerebellum Surface Area', 'Cerebrum Volume')))
-plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),
-                ('Cerebellum Surface Area', 'Cerebrum Volume')), logged=True)
+def show_plots():
+    """Outputs plots to a new window."""
+    plt.show()
 
-# delete_folder()
-# delete_folder(logged=True)
 
-# plt.show()
+if __name__ == '__main__':
+    plot_variables()
+    plot_variables(logged=True)
