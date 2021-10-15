@@ -12,8 +12,8 @@ CSV will be updated in the future as the project progresses.
 - If you wish to log each of the plots, pass logged=True into plot_variables().
 - If you want to manually plot data (from the csv), pass in a tuple containing (a) tuple(s) with variable pairs, like so: 
     - plot_variables((  
-                      ('Cerebrum Volume', 'Cerebellum Volume'),),  
-                      logged=True  
+                                ('Cerebrum Volume', 'Cerebellum Volume'),),  
+                                logged=True  
                       )  
 - Plots will automatically be saved to png files, in respective folders ('Saved Simple Plots' and 'Saved Log Plots'). 
     - A text file is created in each of these folders with details on what each plot file contains. 
