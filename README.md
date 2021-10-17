@@ -15,7 +15,7 @@ CSV will be updated in the future as the project progresses.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('Cerebrum Volume', 'Cerebellum Volume'),),  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logged=True  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)  
-- Plots will automatically be saved to png files, in respective folders ('Saved Simple Plots' and 'Saved Log Plots'). 
+- You will be given a choice to save plots as png files in their respective folders ('Saved Simple Plots' and 'Saved Log Plots'). 
     - A text file is created in each of these folders with details on what each plot file contains. 
         - This is because including variable names in file name could cause confusion/more clutter than necessary.
 
