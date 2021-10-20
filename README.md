@@ -5,7 +5,7 @@ CSV will be updated in the future as the project progresses.
 
 <ins>Functions<ins>
     
-plot_variables():<br>
+**plot_variables():**<br>
 Produces plots with legend, data point colours mapped to taxon.
 - **kwargs:
     - xy -- str, tuple of tuples each containing variable pairs. default=all combinations for the relevant data
@@ -18,12 +18,12 @@ Produces plots with legend, data point colours mapped to taxon.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)  
 
     
-delete_folder():<br>
+**delete_folder():**<br>
 Deletes simple or log save folder.
 - **kwargs:
     - logged -- bool, if True, deletes log save folder. default=False (deletes simple save folder).
 <br>
-show_plots():<br>
+**show_plots():**<br>
 Outputs plots to a new window.<br>
     
 You will be given a choice to save plots as png files in their respective folders ('Saved Simple Plots' and 'Saved Log Plots'). <br>
