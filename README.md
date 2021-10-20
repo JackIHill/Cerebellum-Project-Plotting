@@ -3,21 +3,34 @@ Create plots for cerebellar and cerebral morphology in a range of primates.
 Run alongside csv file containing brain morphological data from a range of studies.
 CSV will be updated in the future as the project progresses.
 
-- Calling the plot_variables() function without passing any arguments will by default:
-    - Produce 3 plots (all combinations for the relevant data). 
-    - These 3 plots will not be logged unless specified otherwise.
-    - Plots will output to a new window. 
-    - Hide 'plt.show()' to hide output. 
+<ins>Functions<ins>
+    
+plot_variables():<br>
+Produces plots with legend, data point colours mapped to taxon.
+- **kwargs:
+    - xy -- str, tuple of tuples each containing variable pairs. default=all combinations for the relevant data
+    - logged -- bool, If True, produces logged plots for xy. default=False.
 
-- If you wish to log each of the plots, pass logged=True into plot_variables().
-- If you want to manually plot data (from the csv), pass in a tuple containing (a) tuple(s) with variable pairs, like so: 
+- Example Input:
     - plot_variables((  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('Cerebrum Volume', 'Cerebellum Volume'),),  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logged=True  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)  
-- You will be given a choice to save plots as png files in their respective folders ('Saved Simple Plots' and 'Saved Log Plots'). 
-    - A text file is created in each of these folders with details on what each plot file contains. 
-        - This is because including variable names in file name could cause confusion/more clutter than necessary.
+
+    <br>
+    
+delete_folder():<br>
+Deletes simple or log save folder.
+- **kwargs:
+    - logged -- bool, if True, deletes log save folder. default=False (deletes simple save folder).
+<br>
+show_plots():<br>
+Outputs plots to a new window.<br>
+    
+You will be given a choice to save plots as png files in their respective folders ('Saved Simple Plots' and 'Saved Log Plots'). <br>
+- A text file is created in each of these folders with details on what each plot file contains. 
+    - This is because including variable names in file name could cause confusion/more clutter than necessary.
+ <br>
 
 **<ins>ABOUT THE CEREBELLUM PROJECT<ins>**
 
