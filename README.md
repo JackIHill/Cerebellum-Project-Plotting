@@ -21,8 +21,8 @@ Produces plots with legend, data point colours mapped to taxon.
 **delete_folder():**<br>
 Deletes simple or log save folder.
 - **kwargs:
-    - logged -- bool, if True, deletes log save folder. default=False (deletes simple save folder).
-<br>
+    - logged -- bool, if True, deletes log save folder. default=False (deletes simple save folder).<br>
+
 **show_plots():**<br>
 Outputs plots to a new window.<br>
     
