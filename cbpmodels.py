@@ -133,17 +133,15 @@ def plot_variables(xy=var_combinations, logged=None):
                         png_id += 1
                     plt.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
 
+                    var_list = [x for x in xy]
                     with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
-                        var_list = [x for x in xy]
-                        if xy is not var_combinations:
-
-                            save_details.write(
-                                f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                                f' - {*var_list,}\n'
-                                f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                                )
-
-                            print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+                        save_details.write(
+                            f'{len(xy)} Simple Plot(s) - #{png_id:d}'
+                            f' - {*var_list,}\n'
+                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                            )
+                        
+                        print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
                 break
 
             elif save_check.lower() == 'n':
@@ -179,10 +177,11 @@ def plot_variables(xy=var_combinations, logged=None):
             axs2[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
 
             # These variables need custom xticks to better represent the range of values.
+            tick_list = [5, 10, 25, 50, 100, 200, 400, 1000]
             if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
-                axs2[i].set_xticks([5, 10, 25, 50, 100, 200, 400, 1000])
+                axs2[i].set_xticks(tick_list)
             else:
-                axs2[i].set_xticks([5, 10, 25, 50, 100, 200, 400])
+                axs2[i].set_xticks(tick_list[:-1])
 
             axs2[i].set_yscale('log')
             axs2[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
@@ -214,17 +213,15 @@ def plot_variables(xy=var_combinations, logged=None):
                         png_id += 1
                     plt.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
 
+                    var_list = [x for x in xy]
                     with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
-                        var_list = [x for x in xy]
-                        if xy is not var_combinations:
-
-                            save_details.write(
-                                f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                                f' - {*var_list,}\n'
-                                f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                                )
-
-                            print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                        save_details.write(
+                            f'{len(xy)} Log Plot(s) - #{png_id:d}'
+                            f' - {*var_list,}\n'
+                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                            )
+                        
+                        print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
                 break
 
             elif save_check.lower() == 'n':
@@ -235,7 +232,7 @@ def plot_variables(xy=var_combinations, logged=None):
             print('Invalid Input - enter "Y" or "N": ')
 
 
-def delete_folder(logged=None):
+def delete_folder(logged=False):
     """Deletes simple or log save folder depending on if logged=True is passed as an argument."""
     if not logged:
         try:
@@ -259,5 +256,6 @@ def show_plots():
 
 
 if __name__ == '__main__':
-    plot_variables()
+    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True)
     plot_variables(logged=True)
+    show_plots()
