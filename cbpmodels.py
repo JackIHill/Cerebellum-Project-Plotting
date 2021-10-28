@@ -42,7 +42,7 @@ colors = {
 col_names = data.columns.to_numpy()[[4, 3, 1]]
 var_combinations = tuple(itertools.combinations(col_names, 2))
 
-# Gives legend markers same color as predefined taxon colors
+# Gives legend markers same color as predefined taxon colors. Fits markers onto a white horizontal line. 
 handles = [
     Line2D([0], [0],
            color='w', marker='o', markerfacecolor=v,
