@@ -80,10 +80,9 @@ def plot_variables(xy=var_combinations, logged=None):
 
     fig_width = left_margin + right_margin + len(xy) * category_size
 
+    # Removes minor x/yticks for logged plots. 
     plt.rcParams['xtick.minor.size'] = 0
-    plt.rcParams['xtick.minor.width'] = 0
     plt.rcParams['ytick.minor.size'] = 0
-    plt.rcParams['ytick.minor.width'] = 0
 
     if not logged:
         fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(fig_width, 4), squeeze=False)
