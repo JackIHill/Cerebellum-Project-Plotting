@@ -230,7 +230,26 @@ def plot_variables(xy=var_combinations, logged=None):
 
             print('Invalid Input - enter "Y" or "N": ')
 
+            
+def plot_regression():
+    """Plots linear regression line for the volume-against-volume plot."""
+    plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),))
+    data_2 = data[['Cerebellum Volume', 'Cerebrum Volume']].copy(deep=False)
 
+    data_2.dropna(inplace=True)
+
+    predict = 'Cerebellum Volume'
+    x = np.array(data_2.drop([predict], axis=1))
+    y = np.array(data_2[predict])
+
+    model = np.polyfit(x[:, 0], y, 1)
+    predict = np.poly1d(model)
+
+    x_lin_reg = range(0, 1600)
+    y_lin_reg = predict(x_lin_reg)
+    plt.plot(x_lin_reg, y_lin_reg, c='k')
+
+    
 def delete_folder(logged=False):
     """Deletes simple or log save folder depending on if logged=True is passed as an argument."""
     if not logged:
@@ -257,4 +276,5 @@ def show_plots():
 if __name__ == '__main__':
     plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True)
     plot_variables(logged=True)
+    plot_regression()
     show_plots()
