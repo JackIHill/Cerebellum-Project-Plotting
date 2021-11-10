@@ -232,7 +232,7 @@ def plot_variables(xy=var_combinations, logged=None):
 
             
 def plot_regression():
-    """Plots linear regression line for the volume-against-volume plot."""
+    """Plots polynomial regression line for the volume-against-volume plot."""
     plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),))
     data_2 = data[['Cerebellum Volume', 'Cerebrum Volume']].copy(deep=False)
 
