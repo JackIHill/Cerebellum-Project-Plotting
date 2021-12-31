@@ -4,12 +4,21 @@ This script is used to create simple and logged scatter plots for cerebellum and
 You will be given the option to save simple and logged plots (to separate folders).
 """
 
+# TODO:
+#  1) make save code be a nested function save() where if logged,
+#  passes logged function to save() and changes save behaviour based on that.
+#  2) Add logging and unit testing
+#  3) Could make the tuple of tuples a dict e.g. {independent variable (key), dependent variable (value), indep...}
+#  4) add requirements.txt
+
 import os
 import sys
-import itertools
 import shutil
+from itertools import combinations as iter_combinations
 from datetime import datetime
+
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
@@ -40,7 +49,7 @@ colors = {
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to index list below if want to include that column.
 col_names = data.columns.to_numpy()[[4, 3, 1]]
-var_combinations = tuple(itertools.combinations(col_names, 2))
+var_combinations = tuple(iter_combinations(col_names, 2))
 
 # Gives legend markers same color as predefined taxon colors. Fits markers onto a white horizontal line. 
 handles = [
