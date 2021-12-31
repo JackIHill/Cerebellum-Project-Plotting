@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
 
+
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
     data = data.dropna(how='all', axis='columns').drop(columns='Source')
@@ -48,10 +49,10 @@ colors = {
 
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to index list below if want to include that column.
-col_names = data.columns.to_numpy()[[4, 3, 1]]
+col_names = data.columns[[4, 3, 1]]
 var_combinations = tuple(iter_combinations(col_names, 2))
 
-# Gives legend markers same color as predefined taxon colors. Fits markers onto a white horizontal line. 
+# Gives legend markers same color as predefined taxon colors.
 handles = [
     Line2D([0], [0],
            color='w', marker='o', markerfacecolor=v,
@@ -159,6 +160,7 @@ def plot_variables(xy=var_combinations, logged=None):
 
             print('Invalid Input - enter "Y" or "N": ')
 
+
     elif logged:
         fig2, axs2 = plt.subplots(1, len(xy), figsize=(fig_width, 4), squeeze=False)
         axs2 = axs2.flatten()
@@ -237,11 +239,12 @@ def plot_variables(xy=var_combinations, logged=None):
                       'Call show_plots() to instead output figures to a new window.')
                 break
 
+
             print('Invalid Input - enter "Y" or "N": ')
 
             
 def plot_regression():
-    """Plots polynomial regression line for the volume-against-volume plot."""
+    """Plots linear regression line for the volume-against-volume plot."""
     plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),))
     data_2 = data[['Cerebellum Volume', 'Cerebrum Volume']].copy(deep=False)
 
