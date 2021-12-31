@@ -12,11 +12,12 @@ Produces plots with legend, data point colours mapped to taxon.
     - logged -- bool, If True, produces logged plots for xy. default=False.
 
 - Example Input:
-    - plot_variables((  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('Cerebrum Volume', 'Cerebellum Volume'),),  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logged=True  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)  
-
+```
+plot_variables(
+              (('Cerebrum Volume', 'Cerebellum Volume'),),  
+              logged=True
+              )  
+```
     
 **delete_folder():**<br>
 Deletes simple or log save folder.
