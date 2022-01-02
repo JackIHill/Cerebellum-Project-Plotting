@@ -64,7 +64,7 @@ handles = [
           ]
 
 
-def plot_variables(xy=var_combinations, logged=None, save=None):
+def plot_variables(xy=var_combinations, logged=False, save=False):
     """
     - Plots brain morphology variables.
     - Pass no arguments to plot 3 default plots.
@@ -171,29 +171,29 @@ def save_plots(figure, xy, logged):
             if not os.path.exists(save_folder):
                 os.makedirs(save_folder)
 
-                png_id = 1
-                if xy == var_combinations:
-                    while os.path.exists(f'Saved Simple Plots/Simple Default Plots - #{png_id:d}.png'):
-                        png_id += 1
-                    figure.savefig(f'Saved Simple Plots/Simple Default Plots - #{png_id:d}.png')
+            png_id = 1
+            if xy is var_combinations:
+                while os.path.exists(f'Saved Simple Plots/Default Simple Plots - #{png_id:d}.png'):
+                    png_id += 1
+                figure.savefig(f'Saved Simple Plots/Default Simple Plots - #{png_id:d}.png')
 
-                    print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+                print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
 
-                else:
-                    while os.path.exists(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png'):
-                        png_id += 1
-                    figure.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
+            else:
+                while os.path.exists(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png'):
+                    png_id += 1
+                figure.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
 
-                    var_list = [x for x in xy]
-                    with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
-                        save_details.write(
-                            f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                            f' - {*var_list,}\n'
-                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                            )
-                        
-                        print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
-                break
+                var_list = [x for x in xy]
+                with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
+                    save_details.write(
+                        f'{len(xy)} Simple Plot(s) - #{png_id:d}'
+                        f' - {*var_list,}\n'
+                        f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                        )
+                    
+                    print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+            break
 
     elif logged:           
         while True:
@@ -201,29 +201,29 @@ def save_plots(figure, xy, logged):
             if not os.path.exists(save_folder):
                 os.makedirs(save_folder)
 
-                png_id = 1
-                if xy == var_combinations:
-                    while os.path.exists(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png'):
-                        png_id += 1
-                    figure.savefig(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png')
+            png_id = 1
+            if xy is var_combinations:
+                while os.path.exists(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png'):
+                    png_id += 1
+                figure.savefig(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png')
 
-                    print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
 
-                else:
-                    while os.path.exists(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png'):
-                        png_id += 1
-                    figure.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
+            else:
+                while os.path.exists(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png'):
+                    png_id += 1
+                figure.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
 
-                    var_list = [x for x in xy]
-                    with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
-                        save_details.write(
-                            f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                            f' - {*var_list,}\n'
-                            f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                            )
-                        
-                        print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
-                break
+                var_list = [x for x in xy]
+                with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
+                    save_details.write(
+                        f'{len(xy)} Log Plot(s) - #{png_id:d}'
+                        f' - {*var_list,}\n'
+                        f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                        )
+                    
+                    print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+            break
 
 
 def delete_folder(logged=False):
@@ -250,10 +250,11 @@ def show_plots():
 
 
 if __name__ == '__main__':
-    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, save=True)
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), save=True)
+    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, save=True)
+    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),))
 
-    plot_variables(logged=True, save=True)
+    # plot_variables(logged=True)
     plot_variables(save=True)
+
     # plot_regression()
     show_plots()
