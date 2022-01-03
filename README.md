@@ -11,9 +11,9 @@ Produces plots with legend, data point colours mapped to taxon.
     - xy -- str. Tuple of tuples each containing variable pairs. default=all combinations for the relevant data
     - logged -- bool. If True, produces logged plots for xy. default=False.
     - save -- bool. If True, creates either 'Saved Simple Plots' or 'Saved Log Plots' folders depending on if the 'logged' keyword argument is specified as True or False. 
-    - show -- bool. If True, outputs plots to a new window. 
         - A text file is created in each of these folders with details on what each plot file contains. 
         - This is because including variable names in file name could cause confusion/more clutter than necessary.
+    - show -- bool. If True, outputs plots to a new window. 
 <br><br>
 - Example Input:
     ```
