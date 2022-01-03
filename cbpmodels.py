@@ -8,6 +8,7 @@ You will be given the option to save simple and logged plots (to separate folder
 #  1) Add logging and unit testing
 #  2) Could make the tuple of tuples a dict e.g. {independent variable (key), dependent variable (value), indep...}
 #  3) add to requirements.txt (numpy)
+#  4) amend readme with save kwarg, delete show_plot func.
 
 import os
 import sys
@@ -62,7 +63,7 @@ handles = [
           ]
 
 
-def plot_variables(xy=var_combinations, logged=False, save=False):
+def plot_variables(xy=var_combinations, logged=False, save=False, show=False):
     """
     - Plots brain morphology variables.
     - Pass no arguments to plot 3 default plots.
@@ -147,6 +148,9 @@ def plot_variables(xy=var_combinations, logged=False, save=False):
     
     if save:
         save_plots(fig1, xy, logged)
+
+    if show:
+        plt.show()
 
 
 def plot_regression():
@@ -243,17 +247,12 @@ def delete_folder(logged=False):
               f'and so could not be deleted.')
 
 
-def show_plots():
-    """Outputs plots to new windows."""
-    plt.show()
-
-
 if __name__ == '__main__':
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, save=True)
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),))
 
-    plot_variables(logged=True)
-    plot_variables()
+    # plot_variables(logged=True)
+    plot_variables(logged=True, show=True)
 
     # plot_regression()
-    show_plots()
+    # show_plots()
