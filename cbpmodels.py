@@ -5,11 +5,9 @@ You will be given the option to save simple and logged plots (to separate folder
 """
 
 # TODO:
-#  1) make save code be a nested function save() where if logged,
-#  passes logged function to save() and changes save behaviour based on that.
-#  2) Add logging and unit testing
-#  3) Could make the tuple of tuples a dict e.g. {independent variable (key), dependent variable (value), indep...}
-#  4) add requirements.txt
+#  1) Add logging and unit testing
+#  2) Could make the tuple of tuples a dict e.g. {independent variable (key), dependent variable (value), indep...}
+#  3) add to requirements.txt (numpy)
 
 import os
 import sys
@@ -229,23 +227,34 @@ def save_plots(figure, xy, logged):
 def delete_folder(logged=False):
     """Deletes simple or log save folder depending on if logged=True is passed as an argument."""
     if not logged:
-        try:
-            folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-            shutil.rmtree(folder)
-        except FileNotFoundError:
-            print('No "Saved Simple Plots" folder exists in current working directory,'
-                  ' and so could not be deleted.')
+        folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
     else:
-        try:
-            folder = os.path.join(os.getcwd(), r'Saved Log Plots')
-            shutil.rmtree(folder)
-        except FileNotFoundError:
-            print('No "Saved Log Plots" folder exists in current working directory,'
-                  ' and so could not be deleted.')
+        folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+
+    try:
+        shutil.rmtree(folder)
+    except FileNotFoundError:
+        print(f'No "{os.path.basename(os.path.normpath(folder))}" folder exists in the current directory, '
+              f'and so could not be deleted.')
+
+    # if not logged:
+    #     try:
+    #         folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
+    #         shutil.rmtree(folder)
+    #     except FileNotFoundError:
+    #         print('No "Saved Simple Plots" folder exists in current working directory,'
+    #               ' and so could not be deleted.')
+    # else:
+    #     try:
+    #         folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+    #         shutil.rmtree(folder)
+    #     except FileNotFoundError:
+    #         print('No "Saved Log Plots" folder exists in current working directory,'
+    #               ' and so could not be deleted.')
 
 
 def show_plots():
-    """Outputs plots to a new window."""
+    """Outputs plots to new windows."""
     plt.show()
 
 
