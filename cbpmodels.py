@@ -74,27 +74,33 @@ def plot_variables(xy=var_combinations, logged=False, save=False):
     right_margin = None
     left_margin = None
 
-    # sets scaling properties for each number of axes in a figure.
+    # Define scaling properties for each number of axes in a figure.
+    left_margin = 2.5
     if len(xy) == 1:
         category_size = 0.1
-        left_margin = 2.5
         right_margin = 2.5
     elif len(xy) == 2:
         category_size = 1.5
-        left_margin = 2.5
         right_margin = 3.5
-    elif len(xy) == 3:
+    elif len(xy) >= 3:
         category_size = 2
-        left_margin = 2.5
         right_margin = 5
 
     fig_width = left_margin + right_margin + len(xy) * category_size
 
-    # Removes minor x/yticks for logged plots. 
+    # Define scaling properties for subplot when more than 3 var combinations are plotted.
+    if len(xy) <= 3:
+        cols = len(xy)
+        rows = 1
+    else:
+        cols = int(len(xy) // 1.66)
+        rows = 2
+
+    # Remove minor ticks for logged plots. 
     plt.rcParams['xtick.minor.size'] = 0
     plt.rcParams['ytick.minor.size'] = 0
 
-    fig1, axs1 = plt.subplots(1, (len(xy)), figsize=(fig_width, 4), squeeze=False)
+    fig1, axs1 = plt.subplots(rows, cols, figsize=(fig_width, 4), squeeze=False)
     axs1 = axs1.flatten()
 
     for i, (x, y) in enumerate(xy):
@@ -163,8 +169,8 @@ def plot_regression():
 
     
 def save_plots(figure, xy, logged):
-    if not logged:
-        while True:
+    while True:
+        if not logged:
             save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
             if not os.path.exists(save_folder):
                 os.makedirs(save_folder)
@@ -182,19 +188,18 @@ def save_plots(figure, xy, logged):
                     png_id += 1
                 figure.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
 
-                var_list = [x for x in xy]
-                with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
-                    save_details.write(
-                        f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                        f' - {*var_list,}\n'
-                        f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                        )
-                    
-                    print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+            var_list = [x for x in xy]
+            with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
+                save_details.write(
+                    f'{len(xy)} Simple Plot(s) - #{png_id:d}'
+                    f' - {*var_list,}\n'
+                    f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                    )
+                
+                print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
             break
-
-    elif logged:           
-        while True:
+          
+        elif logged:           
             save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
             if not os.path.exists(save_folder):
                 os.makedirs(save_folder)
@@ -212,15 +217,15 @@ def save_plots(figure, xy, logged):
                     png_id += 1
                 figure.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
 
-                var_list = [x for x in xy]
-                with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
-                    save_details.write(
-                        f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                        f' - {*var_list,}\n'
-                        f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                        )
-                    
-                    print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+            var_list = [x for x in xy]
+            with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
+                save_details.write(
+                    f'{len(xy)} Log Plot(s) - #{png_id:d}'
+                    f' - {*var_list,}\n'
+                    f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                    )
+                
+                print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
             break
 
 
@@ -237,21 +242,6 @@ def delete_folder(logged=False):
         print(f'No "{os.path.basename(os.path.normpath(folder))}" folder exists in the current directory, '
               f'and so could not be deleted.')
 
-    # if not logged:
-    #     try:
-    #         folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-    #         shutil.rmtree(folder)
-    #     except FileNotFoundError:
-    #         print('No "Saved Simple Plots" folder exists in current working directory,'
-    #               ' and so could not be deleted.')
-    # else:
-    #     try:
-    #         folder = os.path.join(os.getcwd(), r'Saved Log Plots')
-    #         shutil.rmtree(folder)
-    #     except FileNotFoundError:
-    #         print('No "Saved Log Plots" folder exists in current working directory,'
-    #               ' and so could not be deleted.')
-
 
 def show_plots():
     """Outputs plots to new windows."""
@@ -262,8 +252,8 @@ if __name__ == '__main__':
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, save=True)
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),))
 
-    # plot_variables(logged=True)
-    plot_variables(save=True)
+    plot_variables(logged=True)
+    plot_variables()
 
     # plot_regression()
     show_plots()
