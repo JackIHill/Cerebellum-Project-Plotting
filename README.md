@@ -7,29 +7,32 @@ CSV will be updated in the future as the project progresses.
     
 **plot_variables():**<br>
 Produces plots with legend, data point colours mapped to taxon.
-- **kwargs:
-    - xy -- str, tuple of tuples each containing variable pairs. default=all combinations for the relevant data
-    - logged -- bool, If True, produces logged plots for xy. default=False.
-
+- Keyword Arguments:
+    - xy -- str. Tuple of tuples each containing variable pairs. default=all combinations for the relevant data
+    - logged -- bool. If True, produces logged plots for xy. default=False.
+    - save -- bool. If True, creates either 'Saved Simple Plots' or 'Saved Log Plots' folders depending on if the 'logged' keyword argument is specified as True or False. 
+        - A text file is created in each of these folders with details on what each plot file contains. 
+        - This is because including variable names in file name could cause confusion/more clutter than necessary.
+    - show -- bool. If True, outputs plots to a new window. 
+<br><br>
 - Example Input:
-```
-plot_variables(
-              (('Cerebrum Volume', 'Cerebellum Volume'),),  
-              logged=True
-              )  
-```
-    
+    ```
+    plot_variables(
+                (('Cerebrum Volume', 'Cerebellum Volume'),),  
+                logged=True, save=True, show=True
+                )  
+    ```
+
+**plot_regression():**<br>
+Plots linear regression line for the volume-against-volume plot.
+
+
 **delete_folder():**<br>
 Deletes simple or log save folder.
-- **kwargs:
-    - logged -- bool, if True, deletes log save folder. default=False (deletes simple save folder).<br>
-
-**show_plots():**<br>
-Outputs plots to a new window.<br>
+- Keyword Arguments:
+    - logged -- bool. If True, deletes log save folder. default=False (deletes simple save folder).<br>
     
-You will be given a choice to save plots as png files in their respective folders ('Saved Simple Plots' and 'Saved Log Plots'). <br>
-- A text file is created in each of these folders with details on what each plot file contains. 
-    - This is because including variable names in file name could cause confusion/more clutter than necessary.
+
  <br>
 
 **<ins>ABOUT THE CEREBELLUM PROJECT<ins>**
