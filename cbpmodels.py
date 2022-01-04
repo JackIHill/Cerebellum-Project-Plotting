@@ -7,6 +7,7 @@ You will be given the option to save simple and logged plots (to separate folder
 # TODO:
 #  1) Add logging and unit testing
 #  2) Could separate scaling definitions into its own func. At least, do something about handles and colors globals
+#  3) amend var_combinations() comment (as 'pairs' kwarg can now be used)
 
 import os
 import sys
@@ -41,10 +42,44 @@ except FileNotFoundError:
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to col_names list below if want to include. Column names extracted in order 4, 3, 1 for figure aesthetics.
 def var_combinations(cols=[4, 3, 1]):
+    """
+    Get all combinations (not repeated) for a list of columns.
+
+    Parameters:
+    cols (list): list of integers representing column index values from all_species_values.csv. 
+                 defaults to columns 4, 3, and 1 (Cerebrum Volume, Cerebellum Volume, Cerebellum Surface Area).
+                 Order is 4, 3, 1 for plot aesthetic purposes only. 
+                 Column 2, Cerebrum Surface Area is omitted due to lack of data. 
+
+    Return Value:
+    var_combinations (tuple): tuple of tuples, each containing independent/dependent variable pairs.
+    """
     var_combinations = tuple(combinations(data.columns[cols], 2))
     return var_combinations
 
-def plot_variables(xy=var_combinations(), pairs=[], logged=False, save=False, show=False):
+
+def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0bb3e', Platyrrhini='#f2e3bd'):
+    """
+    Assign custom colors to species for visualisation purposes.
+
+    Parameters:
+    Hominidae (str): takes matplotlib named colors or hex color codes for Hominidae (Great Apes).
+    Hylobatidae (str): takes matplotlib named colors or hex color codes for Hylobatidae (Gibbons).
+    Cercopithecidae (str): takes matplotlib named colors or hex color codes for Cercopithecidae (Old World Monkey).
+    Platyrrhini (str): takes matplotlib named colors or hex color codes for Platyrrhini (New World Monkey).
+
+    matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
+    """
+    colors = {
+        'Hominidae': Hominidae,
+        'Hylobatidae': Hylobatidae,
+        'Cercopithecidae': Cercopithecidae,
+        'Platyrrhini': Platyrrhini
+        } 
+    return colors
+       
+
+def plot_variables(xy=var_combinations(), colors=set_colors(), pairs=[], logged=False, save=False, show=False):
     """
     - Plots brain morphology variables.
     - Pass no arguments to plot 3 default plots.
@@ -81,14 +116,6 @@ def plot_variables(xy=var_combinations(), pairs=[], logged=False, save=False, sh
     # Remove minor ticks for logged plots. 
     plt.rcParams['xtick.minor.size'] = 0
     plt.rcParams['ytick.minor.size'] = 0
-
-    # Assign custom colors to species for visualisation purposes. 
-    colors = {
-            'Hominidae': '#7f48b5',
-            'Hylobatidae': '#c195ed',
-            'Cercopithecidae': '#f0bb3e',
-            'Platyrrhini': '#f2e3bd'
-            }
 
     # Give legend markers same color as predefined taxon colors. Marker placed on white line. 
     handles = [
@@ -171,6 +198,20 @@ def plot_regression():
 
     
 def save_plots(figure, xy, logged):
+    """
+    Saves simple/log plots to respective folders.
+
+    Save figures to respective 'Saved Simple Plots' or 'Saved Log Plots' folders in the current directory, 
+    depending on if 'logged' is True. Each figure's save file is named as such:
+    '(number of plots in figure) Simple Plot(s) - #(number denoting order in which file was saved).
+    SIMPLE_PLOT_DETAILS.txt or LOG_PLOT_DETAILS.txt files also created containing number of plots, number
+    denoting order save file, independent and dependent variables used for plotting, and figure creation time. 
+    
+    Parameters:
+    figure (Matplotlib figure): the current figure object defined within plot_variables().
+                                xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
+    logged (bool): determines creation of simple plot (False), or log plot save folders (True).
+    """
     while True:
         if not logged:
             save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
@@ -232,7 +273,12 @@ def save_plots(figure, xy, logged):
 
 
 def delete_folder(logged=False):
-    """Deletes simple or log save folder depending on if logged=True is passed as an argument."""
+    """
+    Deletes simple or log save folder depending on if logged=True is passed as an argument.
+    
+    Parameters:
+    logged (bool): determines deletion of simple plot (False), or log plot save folders (True).
+    """
     if not logged:
         folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
     else:
