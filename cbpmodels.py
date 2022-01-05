@@ -148,13 +148,13 @@ def plot_variables(xy=None, colors=None, pairs=[], logged=False, save=False, sho
            ) for k, v in colors.items()
           ]
     
-    fig1, axs1 = plt.subplots(rows, cols, figsize=(fig_width, 4), squeeze=False)
-    axs1 = axs1.flatten()
+    fig, axs = plt.subplots(rows, cols, figsize=(fig_width, 4), squeeze=False)
+    axs = axs.flatten()
 
     for i, (x, y) in enumerate(xy):
-        axs1[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
+        axs[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
 
-        ax_legend = axs1[i].legend(
+        ax_legend = axs[i].legend(
             title='Taxon',
             title_fontsize='9',
             handles=handles,
@@ -164,37 +164,37 @@ def plot_variables(xy=None, colors=None, pairs=[], logged=False, save=False, sho
         ax_legend.get_frame().set_color('white')
 
         if not logged:
-            axs1[i].set(
+            axs[i].set(
                 title=f'Primate {xy[i][0]} against\n{xy[i][1]}',
                 xlabel=f'{xy[i][0]}',
                 ylabel=f'{xy[i][1]}'
                 )
         
         elif logged:
-            axs1[i].set(
+            axs[i].set(
                 title=f'Logged Primate {xy[i][0]} against\n{xy[i][1]}',
                 xlabel=f'Logged {xy[i][0]}',
                 ylabel=f'Logged {xy[i][1]}'
                 )
             
-            axs1[i].set_xscale('log')
-            axs1[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
+            axs[i].set_xscale('log')
+            axs[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
 
-            axs1[i].set_yscale('log')   
-            axs1[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
-            axs1[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
+            axs[i].set_yscale('log')   
+            axs[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
+            axs[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
 
             # These variables need custom xticks to better represent the range of values.
             tick_list = [5, 10, 25, 50, 100, 200, 400, 1000]
             if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
-                axs1[i].set_xticks(tick_list)
+                axs[i].set_xticks(tick_list)
             else:
-                axs1[i].set_xticks(tick_list[:-1])
+                axs[i].set_xticks(tick_list[:-1])
 
-        fig1.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+        fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     
     if save:
-        save_plots(fig1, xy, logged)
+        save_plots(fig, xy, logged)
 
     if show:
         plt.show()
@@ -314,10 +314,10 @@ def delete_folder(logged=False):
 
 
 if __name__ == '__main__':
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
+    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
+    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
 
-    # plot_variables(logged=True)
+    plot_variables(logged=True)
     plot_variables(logged=True, show=False, save=True)
     # delete_folder(logged=True)
     # plot_regression()
