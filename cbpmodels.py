@@ -7,6 +7,7 @@ You will be given the option to save simple and logged plots (to separate folder
 # TODO:
 #  1) Add logging and unit testing
 #  2) amend module docstring
+#  3) implement threading due to plot_variables inner function calls (DEFAULT_XY = var etc)
 
 import os
 import sys
@@ -111,8 +112,17 @@ def plot_variables(xy=None, colors=None, pairs=[], logged=False, save=False, sho
     if colors is None:
         colors = DEFAULT_COLORS
     if pairs:
-        xy = var_combinations(pairs)
-
+        try:
+            if all(0 < i <= 4 for i in pairs):
+                xy = var_combinations(pairs)
+            else:
+                print('\nAn invalid index value was passed to the `pairs` keyword argument, and so the default'
+                ' configuration of variables was plotted. Ensure that index values are'
+                ' not lower than 1 and do not exceed 4.\n')
+        except TypeError as t:
+            print(f'\nAs a list containing integers was not passed to `pairs`, the default'
+                ' configuration of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n')
+        
     # Define scaling properties for each number of axes in a figure.
     left_margin = 2.5
     if len(xy) == 1:
@@ -314,10 +324,10 @@ def delete_folder(logged=False):
 
 
 if __name__ == '__main__':
-    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
-    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
+    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
+    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
 
-    plot_variables(logged=True)
-    plot_variables(logged=True, show=False, save=True)
+    # plot_variables(logged=True)
+    plot_variables(pairs=[0, 4], show=True)
     # delete_folder(logged=True)
     # plot_regression()
