@@ -6,8 +6,7 @@ You will be given the option to save simple and logged plots (to separate folder
 
 # TODO:
 #  1) Add logging and unit testing
-#  2) Could separate scaling definitions into its own func. At least, do something about handles and colors globals
-#  3) amend var_combinations() comment (as 'pairs' kwarg can now be used)
+#  2) amend module docstring
 
 import os
 import sys
@@ -42,31 +41,38 @@ except FileNotFoundError:
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to col_names list below if want to include. Column names extracted in order 4, 3, 1 for figure aesthetics.
 def var_combinations(cols=[4, 3, 1]):
-    """
-    Get all combinations (not repeated) for a list of columns.
+    """Get all combinations (not repeated) for a list of columns.
 
-    Parameters:
-    cols (list): list of integers representing column index values from all_species_values.csv. 
-                 defaults to columns 4, 3, and 1 (Cerebrum Volume, Cerebellum Volume, Cerebellum Surface Area).
-                 Order is 4, 3, 1 for plot aesthetic purposes only. 
-                 Column 2, Cerebrum Surface Area is omitted due to lack of data. 
+    Args:
+        cols (list, optional):
+            list of integers representing column index values from .csv. 
+            Defaults to [4, 3, 1] (Cerebrum Volume, Cerebellum Volume, Cerebellum Surface Area).
+            Order is 4, 3, 1 for plot aesthetic purposes only. 
+            Column 2, Cerebrum Surface Area is omitted due to lack of data. 
 
-    Return Value:
-    var_combinations (tuple): tuple of tuples, each containing independent/dependent variable pairs.
+    Returns:
+        tuple: tuple of tuples, each containing independent/dependent variable pairs.
     """
     var_combinations = tuple(combinations(data.columns[cols], 2))
     return var_combinations
 
+DEFAULT_XY = var_combinations()
 
 def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0bb3e', Platyrrhini='#f2e3bd'):
-    """
-    Assign custom colors to species for visualisation purposes.
+    """Assign custom colors to species for visualisation purposes.
 
-    Parameters:
-    Hominidae (str): takes matplotlib named colors or hex color codes for Hominidae (Great Apes).
-    Hylobatidae (str): takes matplotlib named colors or hex color codes for Hylobatidae (Gibbons).
-    Cercopithecidae (str): takes matplotlib named colors or hex color codes for Cercopithecidae (Old World Monkey).
-    Platyrrhini (str): takes matplotlib named colors or hex color codes for Platyrrhini (New World Monkey).
+    Args:
+        Hominidae (str, optional): 
+            takes matplotlib named colors/hex colors for Great Apes. Defaults to #7f48b5
+        Hylobatidae (str, optional): 
+            takes matplotlib named colors/hex colors for Gibbons. Defaults to #c195ed
+        Cercopithecidae (str, optional): 
+            takes matplotlib named colors/hex colors for Old World Monkeys. Defaults to #f0bb3e
+        Platyrrhini (str, optional): 
+            takes matplotlib named colors/hex colors for New World Monkey. Defaults to #f2e3bd
+
+    Returns:
+        colors (dict of str: str): taxon name mapped to a color (for use in matplotlib pyplot creation).
 
     matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
     """
@@ -78,16 +84,32 @@ def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0b
         } 
     return colors
        
+DEFAULT_COLORS = set_colors()
 
-def plot_variables(xy=var_combinations(), colors=set_colors(), pairs=[], logged=False, save=False, show=False):
-    """
-    - Plots brain morphology variables.
-    - Pass no arguments to plot 3 default plots.
-    - Pass logged=True with no arguments to log these default plots.
-    - Pass a tuple containing tuples which contain variable pairs to plot custom variables, like so:
-    - plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),)).
-    """
+def plot_variables(xy=var_combinations(), colors=None, pairs=[], logged=False, save=False, show=False):
+    """Plots brain morphology variables
 
+    Args:
+        xy (tuple, optional): 
+            tuple of tuples, each containing independent/dependent variable pairs. Defaults to var_combinations().
+        colors (PLACEHOLDER), optional): 
+            PLACEHOLDER. Defaults to set_colors().
+        pairs (list, optional): 
+            list of integers representing column index values from .csv, to be passed to var_combinations(). 
+            Defaults to [].
+        logged (bool, optional): 
+            produce simple (unlogged, False) or logged plots (True). Defaults to False.
+        save (bool, optional): 
+            if True, save figure to 'Saved Simple Plots' or 'Saved Log Plots' folders, respective of `logged`. 
+            Passes xy (tuple, optional) to save_plots() to provide detailed file names, 
+            and SIMPLE/LOG_PLOT_DETAILSD.txt files to the respective save folder. Defaults to False.
+        show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
+    """
+    
+    if xy is None:
+        xy = DEFAULT_XY
+    if colors is None:
+        colors = DEFAULT_COLORS
     if pairs:
         xy = var_combinations(pairs)
 
@@ -176,6 +198,8 @@ def plot_variables(xy=var_combinations(), colors=set_colors(), pairs=[], logged=
 
     if show:
         plt.show()
+    else:
+        plt.close()
 
 
 def plot_regression():
@@ -198,19 +222,18 @@ def plot_regression():
 
     
 def save_plots(figure, xy, logged):
-    """
-    Saves simple/log plots to respective folders.
+    """Saves simple/log plots to respective folders.
 
-    Save figures to respective 'Saved Simple Plots' or 'Saved Log Plots' folders in the current directory, 
-    depending on if 'logged' is True. Each figure's save file is named as such:
+    Each figure's save file is named as such:
     '(number of plots in figure) Simple Plot(s) - #(number denoting order in which file was saved).
+
     SIMPLE_PLOT_DETAILS.txt or LOG_PLOT_DETAILS.txt files also created containing number of plots, number
-    denoting order save file, independent and dependent variables used for plotting, and figure creation time. 
-    
-    Parameters:
-    figure (Matplotlib figure): the current figure object defined within plot_variables().
-                                xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
-    logged (bool): determines creation of simple plot (False), or log plot save folders (True).
+    denoting order save file, value of `xy`, and figure creation time. 
+
+    Args:
+        figure (Matplotlib figure): the current figure object defined within plot_variables().
+        xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
+        logged (bool): determines creation of 'Saved Simple Plots' (False), or 'Saved Log Plots' folders (True).
     """
     while True:
         if not logged:
@@ -273,11 +296,10 @@ def save_plots(figure, xy, logged):
 
 
 def delete_folder(logged=False):
-    """
-    Deletes simple or log save folder depending on if logged=True is passed as an argument.
-    
-    Parameters:
-    logged (bool): determines deletion of simple plot (False), or log plot save folders (True).
+    """Deletes simple or log save folder depending on if logged=True is passed as an argument.
+
+    Args:
+        logged (bool): determines deletion of simple plot (False), or log plot save folders (True).
     """
     if not logged:
         folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
@@ -293,10 +315,11 @@ def delete_folder(logged=False):
 
 if __name__ == '__main__':
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),),)
+    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),),)
 
     # plot_variables(logged=True)
     plot_variables(logged=False, show=True)
+    plot_variables(logged=True, show=True)
     
     # plot_regression()
     # show_plots()
