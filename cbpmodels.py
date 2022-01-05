@@ -40,7 +40,7 @@ except FileNotFoundError:
 
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to col_names list below if want to include. Column names extracted in order 4, 3, 1 for figure aesthetics.
-def var_combinations(cols=[4, 3, 1]):
+def var_combinations(cols):
     """Get all combinations (not repeated) for a list of columns.
 
     Args:
@@ -56,7 +56,6 @@ def var_combinations(cols=[4, 3, 1]):
     var_combinations = tuple(combinations(data.columns[cols], 2))
     return var_combinations
 
-DEFAULT_XY = var_combinations()
 
 def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0bb3e', Platyrrhini='#f2e3bd'):
     """Assign custom colors to species for visualisation purposes.
@@ -83,10 +82,11 @@ def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0b
         'Platyrrhini': Platyrrhini
         } 
     return colors
-       
+
+DEFAULT_XY = var_combinations([4, 3, 1])       
 DEFAULT_COLORS = set_colors()
 
-def plot_variables(xy=var_combinations(), colors=None, pairs=[], logged=False, save=False, show=False):
+def plot_variables(xy=None, colors=None, pairs=[], logged=False, save=False, show=False):
     """Plots brain morphology variables
 
     Args:
@@ -254,11 +254,11 @@ def save_plots(figure, xy, logged):
                     png_id += 1
                 figure.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
 
-            var_list = [x for x in xy]
+            var_list = "\n".join(str(x) for x in xy)
             with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
                 save_details.write(
                     f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                    f' - {*var_list,}\n'
+                    f' - {var_list}\n'
                     f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                     )
                 
@@ -283,12 +283,12 @@ def save_plots(figure, xy, logged):
                     png_id += 1
                 figure.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
 
-            var_list = [x for x in xy]
+            var_list = "\n".join(str(x) for x in xy)
             with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
                 save_details.write(
                     f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                    f' - {*var_list,}\n'
-                    f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
+                    f'\n{var_list}\n'
+                    f'- Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                     )
                 
                 print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
@@ -315,11 +315,9 @@ def delete_folder(logged=False):
 
 if __name__ == '__main__':
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
-    plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),),)
+    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
 
     # plot_variables(logged=True)
-    plot_variables(logged=False, show=True)
-    plot_variables(logged=True, show=True)
-    
+    plot_variables(logged=True, show=False, save=True)
+    # delete_folder(logged=True)
     # plot_regression()
-    # show_plots()
