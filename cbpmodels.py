@@ -4,11 +4,6 @@ This script is used to create simple and logged scatter plots for cerebellum and
 You will be given the option to save simple and logged plots (to separate folders).
 """
 
-# TODO:
-#  1) Add logging and unit testing
-#  2) amend module docstring
-#  3) implement threading due to plot_variables inner function calls (DEFAULT_XY = var etc)
-
 import os
 import sys
 import shutil
@@ -45,8 +40,7 @@ def var_combinations(cols):
     """Get all combinations (not repeated) for a list of columns.
 
     Args:
-        cols (list, optional):
-            list of integers representing column index values from .csv. 
+        cols (list, optional): list of integers representing column index values from .csv. 
             Defaults to [4, 3, 1] (Cerebrum Volume, Cerebellum Volume, Cerebellum Surface Area).
             Order is 4, 3, 1 for plot aesthetic purposes only. 
             Column 2, Cerebrum Surface Area is omitted due to lack of data. 
@@ -57,72 +51,76 @@ def var_combinations(cols):
     var_combinations = tuple(combinations(data.columns[cols], 2))
     return var_combinations
 
+default_colors = {
+            'Hominidae': '#7f48b5',
+            'Hylobatidae': '#c195ed',
+            'Cercopithecidae': '#f0bb3e',
+            'Platyrrhini': '#f2e3bd'
+            } 
 
-def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0bb3e', Platyrrhini='#f2e3bd'):
+def set_colors(new_colors=None):
     """Assign custom colors to species for visualisation purposes.
 
     Args:
-        Hominidae (str, optional): 
-            takes matplotlib named colors/hex colors for Great Apes. Defaults to #7f48b5
-        Hylobatidae (str, optional): 
-            takes matplotlib named colors/hex colors for Gibbons. Defaults to #c195ed
-        Cercopithecidae (str, optional): 
-            takes matplotlib named colors/hex colors for Old World Monkeys. Defaults to #f0bb3e
-        Platyrrhini (str, optional): 
-            takes matplotlib named colors/hex colors for New World Monkey. Defaults to #f2e3bd
-
+        new_colors (dict of str:str, optional): species:color dictionary where valid species names are:
+            'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
+            named colors or hex color codes. Defaults to empty dictionary.
+            
     Returns:
-        colors (dict of str: str): taxon name mapped to a color (for use in matplotlib pyplot creation).
+        default_colors (dict of str: str): default_colors dict merged with values from new_colors. 
 
     matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
     """
-    colors = {
-        'Hominidae': Hominidae,
-        'Hylobatidae': Hylobatidae,
-        'Cercopithecidae': Cercopithecidae,
-        'Platyrrhini': Platyrrhini
-        } 
-    return colors
+    if new_colors is None:
+        new_colors = {}
 
-DEFAULT_XY = var_combinations([4, 3, 1])       
-DEFAULT_COLORS = set_colors()
+    default_colors.update(new_colors)
+    return default_colors
+
 
 def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
     """Plots brain morphology variables
 
     Args:
-        xy (tuple or list, optional): 
-            accepts tuple of tuples, each containing independent/dependent variable pairs, or a list of integers
-            representing column index values from .csv, to be passed to var_combinations().
-            Ensure a minimum of two integers are defined. Defaults to None.
-        colors (PLACEHOLDER), optional): 
-            PLACEHOLDER. Defaults to DEFAULT_XY.
-        logged (bool, optional): 
-            produce simple (unlogged, False) or logged plots (True). Defaults to False.
-        save (bool, optional): 
-            if True, save figure to 'Saved Simple Plots' or 'Saved Log Plots' folders, respective of `logged`. 
-            Passes xy (tuple, optional) to save_plots() to provide detailed file names, 
+        xy (tuple or list, optional): accepts tuple of tuples, each containing independent/dependent variable pairs, 
+            or a list of integers representing column index values from .csv, to be passed to var_combinations().
+            Ensure a minimum of two integers are defined. Defaults to var_combinations([4, 3, 1]).
+        colors (dict of str: str), optional): species:color dictionary where valid species names are:
+            'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
+            named colors or hex color codes. Maps the respective colors to each species' plot markers. Defaults to: 
+            {'Hominidae': '#7f48b5', 'Hylobatidae': '#c195ed', 'Cercopithecidae': '#f0bb3e', 'Platyrrhini': '#f2e3bd'}.
+        logged (bool, optional): produce simple (unlogged, False) or logged plots (True). Defaults to False.
+        save (bool, optional): if True, save figure to 'Saved Simple Plots' or 'Saved Log Plots' folders, 
+            respective of `logged`. Passes xy (tuple, optional) to save_plots() to provide detailed file names, 
             and SIMPLE/LOG_PLOT_DETAILSD.txt files to the respective save folder. Defaults to False.
         show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
     """
 
     if xy is None:
-        xy = DEFAULT_XY
+        xy = var_combinations([4, 3, 1])
     elif isinstance(xy, list):
         try:
             if all(0 < i <= 4 for i in xy):
                 xy = var_combinations(xy)
             else:
-                print('\nAn invalid index value was passed to the `xy` keyword argument, and so the default'
-                ' configuration of variables was plotted. Ensure that index values are'
-                ' not lower than 1 and do not exceed 4.\n')
+                print(
+                    '\nAn invalid index value was passed to the `xy` keyword argument, and so the default'
+                    ' configuration of variables was plotted. Ensure that index values are'
+                    ' not lower than 1 and do not exceed 4.\n'
+                    )
         except TypeError as t:
-            print(f'\nA list containing integers was not passed to `xy`, therefore the default'
-                ' configuration of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n')
+            print(
+                '\nA list containing integers was not passed to `xy`, therefore the default configuration'
+                ' of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n'
+                )
 
     if colors is None:
-        colors = DEFAULT_COLORS
-        
+        colors = default_colors
+    else:
+        def_copy = default_colors.copy()
+        def_copy.update(colors)
+        colors = def_copy
+
     # Define scaling properties for each number of axes in a figure.
     left_margin = 2.5
     if len(xy) == 1:
@@ -325,8 +323,12 @@ def delete_folder(logged=False):
 
 if __name__ == '__main__':
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
 
-    plot_variables([1, 2], show=True)
+    plot_variables(show=True)
+    plot_variables(colors={'Hominidae':'blue'}, show=True)
+
+    set_colors({'Hominidae':'red'})
+    plot_variables(show=True)
+
     # delete_folder(logged=True)
     # plot_regression()
