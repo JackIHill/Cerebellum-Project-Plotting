@@ -52,7 +52,7 @@ def var_combinations(cols):
             Column 2, Cerebrum Surface Area is omitted due to lack of data. 
 
     Returns:
-        tuple: tuple of tuples, each containing independent/dependent variable custom_pairs.
+        tuple: tuple of tuples, each containing independent/dependent variable pairs.
     """
     var_combinations = tuple(combinations(data.columns[cols], 2))
     return var_combinations
@@ -87,17 +87,16 @@ def set_colors(Hominidae='#7f48b5', Hylobatidae='#c195ed', Cercopithecidae='#f0b
 DEFAULT_XY = var_combinations([4, 3, 1])       
 DEFAULT_COLORS = set_colors()
 
-def plot_variables(xy=None, colors=None, custom_pairs=[], logged=False, save=False, show=False):
+def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
     """Plots brain morphology variables
 
     Args:
-        xy (tuple, optional): 
-            tuple of tuples, each containing independent/dependent variable custom_pairs. Defaults to var_combinations().
+        xy (tuple or list, optional): 
+            accepts tuple of tuples, each containing independent/dependent variable pairs, or a list of integers
+            representing column index values from .csv, to be passed to var_combinations().
+            Ensure a minimum of two integers are defined. Defaults to None.
         colors (PLACEHOLDER), optional): 
-            PLACEHOLDER. Defaults to set_colors().
-        custom_pairs (list, optional): 
-            list of integers representing column index values from .csv, to be passed to var_combinations(). 
-            Defaults to [].
+            PLACEHOLDER. Defaults to DEFAULT_XY.
         logged (bool, optional): 
             produce simple (unlogged, False) or logged plots (True). Defaults to False.
         save (bool, optional): 
@@ -106,22 +105,23 @@ def plot_variables(xy=None, colors=None, custom_pairs=[], logged=False, save=Fal
             and SIMPLE/LOG_PLOT_DETAILSD.txt files to the respective save folder. Defaults to False.
         show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
     """
-    
+
     if xy is None:
         xy = DEFAULT_XY
-    if colors is None:
-        colors = DEFAULT_COLORS
-    if custom_pairs:
+    elif isinstance(xy, list):
         try:
-            if all(0 < i <= 4 for i in custom_pairs):
-                xy = var_combinations(custom_pairs)
+            if all(0 < i <= 4 for i in xy):
+                xy = var_combinations(xy)
             else:
-                print('\nAn invalid index value was passed to the `custom_pairs` keyword argument, and so the default'
+                print('\nAn invalid index value was passed to the `xy` keyword argument, and so the default'
                 ' configuration of variables was plotted. Ensure that index values are'
                 ' not lower than 1 and do not exceed 4.\n')
         except TypeError as t:
-            print(f'\nAs a list containing integers was not passed to `custom_pairs`, the default'
+            print(f'\nA list containing integers was not passed to `xy`, therefore the default'
                 ' configuration of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n')
+
+    if colors is None:
+        colors = DEFAULT_COLORS
         
     # Define scaling properties for each number of axes in a figure.
     left_margin = 2.5
@@ -242,7 +242,7 @@ def save_plots(figure, xy, logged):
 
     Args:
         figure (Matplotlib figure): the current figure object defined within plot_variables().
-        xy (tuple): tuple of tuples, each containing independent/dependent variable custom_pairs.
+        xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
         logged (bool): determines creation of 'Saved Simple Plots' (False), or 'Saved Log Plots' folders (True).
     """
     while True:
@@ -327,8 +327,6 @@ if __name__ == '__main__':
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
     # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), show=True)
 
-    # plot_variables(logged=True)
-    plot_variables(custom_pairs=[0, 4], show=True)
-    print(DEFAULT_XY)
+    plot_variables([1, 2], show=True)
     # delete_folder(logged=True)
     # plot_regression()
