@@ -3,7 +3,7 @@ Create plots for cerebellar and cerebral morphology in a range of primates.
 Run alongside csv file containing brain morphological data from a range of studies.
 CSV will be updated in the future as the project progresses.
 
-[About the Cerebellum Project](#about-the-cerebellum-project)
+- [About the Cerebellum Project](#about-the-cerebellum-project)
 
 ## Usage
     
