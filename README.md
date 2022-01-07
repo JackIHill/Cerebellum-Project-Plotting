@@ -20,7 +20,7 @@ Produces:
 
 <br>
 
-Specifying n number of variable combination tuples  will plot n number of plots on the figure. ```logged=True``` can also be passed, to log every plot in the figure. Thus:
+Specifying n number of variable combination tuples will plot n number of plots on the figure. ```logged=True``` can also be passed, to log every plot in the figure. Thus:
 
 ```python
 plot_variables(
@@ -53,13 +53,13 @@ column index 4 = Cerebrum Volume <br>
 
 <br>
 
-You can manually change the color map for the current plot using the ```colors``` keyword. Pass a dictionary containing a taxon name key and a color value, where valid taxa are 'Hominidae', 'Hylobatidae', 'Cercopithecidae' and 'Platyrrhini' and valid colors are matplotlib named colors (https://matplotlib.org/stable/gallery/color/named_colors.html) or hex color codes. Thus:
+The color map can be changed manually for the current plot using the ```colors``` keyword. Pass a dictionary containing a taxon name key and a color value, where valid taxa are 'Hominidae', 'Hylobatidae', 'Cercopithecidae' and 'Platyrrhini' and valid colors are matplotlib named colors (https://matplotlib.org/stable/gallery/color/named_colors.html) or hex color codes. Thus:
 
 ```python
 plot_variables(colors={'Hominidae':'blue'}, show=True)
 ``` 
 
-will alter the color map for the taxon Hominidae, leaving all other taxon color maps as their default, as such:
+Will modify the color map for the taxon Hominidae, leaving all other taxon color maps as their default, as such:
 
 ![default_plot_colored_diff](https://user-images.githubusercontent.com/73407206/148591146-3494d9ef-c56a-4fcd-90a9-a2fac7fb887f.png)
 
@@ -78,7 +78,7 @@ plot_variables(show=True) # default color for Hominidae is red, all other colors
 
 <br>
 
-Passing ```save=True``` will create a new directory inside the current directory, and store the current figure in 'Saved Simple Plots' or 'Saved Log Plots' depending on if ```logged``` is True. SIMPLE / LOG_PLOT_DETAILS.txt files will be created simultaneously, providing information for each figure on the number of plots, save file order, variables used for each plot, and the time at figure creation. 
+Passing ```save=True``` Will create a new directory inside the current directory, and store the current figure in 'Saved Simple Plots' or 'Saved Log Plots' depending on if ```logged``` is True. SIMPLE / LOG_PLOT_DETAILS.txt files will be created simultaneously, providing information for each figure on the number of plots, save file order, variables used for each plot, and the time at figure creation. 
 
 To easily delete these folders, ```delete_folders(logged=True)``` for the 'Saved Log Plots' directory, and ```delete_folders()``` for the 'Saved Simple Plots' directory.
 
