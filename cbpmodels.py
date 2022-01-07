@@ -4,6 +4,11 @@ This script is used to create simple and logged scatter plots for cerebellum and
 You will be given the option to save simple and logged plots (to separate folders).
 """
 
+# TODO:
+#  1) Add logging and unit testing
+#  2) amend module docstring
+#  3) implement threading due to plot_variables inner function calls
+
 import os
 import sys
 import shutil
@@ -20,13 +25,14 @@ from matplotlib.lines import Line2D
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
     data = data.dropna(how='all', axis='columns').drop(columns='Source')
-    data.rename(columns={
-        'Species ': 'Species',
-        'CerebellumSurfaceArea': 'Cerebellum Surface Area',
-        'CerebrumSurfaceArea': 'Cerebrum Surface Area',
-        'CerebellumVolume ': 'Cerebellum Volume',
-        'CerebrumVolume': 'Cerebrum Volume'
-        }, inplace=True)
+    data.rename(
+        columns={
+            'Species ': 'Species',
+            'CerebellumSurfaceArea': 'Cerebellum Surface Area',
+            'CerebrumSurfaceArea': 'Cerebrum Surface Area',
+            'CerebellumVolume ': 'Cerebellum Volume',
+            'CerebrumVolume': 'Cerebrum Volume'
+            }, inplace=True)
 
 except FileNotFoundError:
     print('CSV not found. Please ensure you have the \'all_species_values.csv\' '
@@ -40,10 +46,7 @@ def var_combinations(cols):
     """Get all combinations (not repeated) for a list of columns.
 
     Args:
-        cols (list, optional): list of integers representing column index values from .csv. 
-            Defaults to [4, 3, 1] (Cerebrum Volume, Cerebellum Volume, Cerebellum Surface Area).
-            Order is 4, 3, 1 for plot aesthetic purposes only. 
-            Column 2, Cerebrum Surface Area is omitted due to lack of data. 
+        cols (list of int): list of integers representing column index values from .csv. 
 
     Returns:
         tuple: tuple of tuples, each containing independent/dependent variable pairs.
@@ -103,16 +106,13 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
             if all(0 < i <= 4 for i in xy):
                 xy = var_combinations(xy)
             else:
-                print(
-                    '\nAn invalid index value was passed to the `xy` keyword argument, and so the default'
-                    ' configuration of variables was plotted. Ensure that index values are'
-                    ' not lower than 1 and do not exceed 4.\n'
-                    )
+                print('\nAn invalid index value was passed to the `xy` keyword argument, and so the default'
+                    ' configuration of variables was plotted. Ensure that index values are not lower than 1'
+                    ' and do not exceed 4.\n')
+
         except TypeError as t:
-            print(
-                '\nA list containing integers was not passed to `xy`, therefore the default configuration'
-                ' of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n'
-                )
+            print('\nA list containing integers was not passed to `xy`, therefore the default configuration'
+                ' of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n')
 
     if colors is None:
         colors = default_colors
@@ -149,12 +149,12 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
 
     # Give legend markers same color as predefined taxon colors. Marker placed on white line. 
     handles = [
-    Line2D([0], [0],
-           color='w', marker='o', markerfacecolor=v,
-           markeredgecolor='k', markeredgewidth='0.5',
-           markersize=4, label=k,
-           ) for k, v in colors.items()
-          ]
+        Line2D([0], [0],
+        color='w', marker='o', markerfacecolor=v,
+        markeredgecolor='k', markeredgewidth='0.5',
+        markersize=4, label=k,
+        ) for k, v in colors.items()
+        ]
     
     fig, axs = plt.subplots(rows, cols, figsize=(fig_width, 4), squeeze=False)
     axs = axs.flatten()
@@ -206,8 +206,6 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
 
     if show:
         plt.show()
-    else:
-        plt.close()
 
 
 def plot_regression():
@@ -322,7 +320,7 @@ def delete_folder(logged=False):
 
 
 if __name__ == '__main__':
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),), logged=True, show=True)
+    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),),)
 
     plot_variables(show=True)
     plot_variables(colors={'Hominidae':'blue'}, show=True)
