@@ -3,6 +3,8 @@ Create plots for cerebellar and cerebral morphology in a range of primates.
 Run alongside csv file containing brain morphological data from a range of studies.
 CSV will be updated in the future as the project progresses.
 
+[About the Cerebellum Project](#about-the-cerebellum-project)
+
 ## Usage
     
 ```plot_variables()``` produces plots with a legend and data point colours mapped to taxa.
@@ -88,7 +90,7 @@ To easily delete these folders, ```delete_folders(logged=True)``` for the 'Saved
 
 ## About the Cerebellum Project
 
-The cerebellum project studies cerebellar evolution at microscopic scale, across several primate species. It aims at creating precise delineations of the pial surface of the cerebellar cortex. With this, we measure the surface area and volume of each cerebellum and cerebrum in each primate brain. We will also attempt to use the annotations to generate 3D volumes and 3D meshes of the gorilla cerebellum. Eventually we will use these surface data to guide segmentation into cerebellar sub-structures with more precise functions.
+The cerebellum project studies cerebellar evolution at microscopic scale, across several primate species. It aims at creating precise delineations of the pial surface of the cerebellar cortex. With this, we measure the surface area and volume of each cerebellum and cerebrum in each primate brain. We will also attempt to use the annotations to generate 3D volumes and 3D meshes of the gorilla cerebellum (for now, with more species to come). Eventually we will use these surface data to guide segmentation into cerebellar sub-structures with more precise functions.
 
 Primarily, for annotation, we use MicroDraw, available at: https://microdraw.pasteur.fr/ and https://github.com/r03ert0/microdraw
 
