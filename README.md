@@ -37,7 +37,6 @@ Produces:
 <br>
 Specify a list of column indices to plot all non-repeated combinations of the variables those columns represent.
 
-
 ```python
 plot_variables([1, 2, 3, 4], show=True)
 ```
