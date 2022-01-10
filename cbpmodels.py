@@ -7,13 +7,17 @@ You will be given the option to save simple and logged plots (to separate folder
 # TODO:
 #  1) Add logging and unit testing
 #  2) amend module docstring
-#  3) implement threading due to plot_variables inner function calls
+#  3) implement threading due to plot_variables inner function calls\
+#  4) use vars to hold information for creating logged save files to minimise repeating myself. 
+#  5) amend doc for set_colors to be able to use default colors to revert to normal
+#  6) move var_combinations try except into var_combinations func?
 
 import os
 import sys
 import shutil
 from itertools import combinations
 from datetime import datetime
+from typing import Sequence
 
 import pandas as pd
 import numpy as np
@@ -35,18 +39,22 @@ try:
             }, inplace=True)
 
 except FileNotFoundError:
-    print('CSV not found. Please ensure you have the \'all_species_values.csv\' '
-          'in the same directory as this program.')
+    print(
+        "CSV not found. Please ensure you have the \'all_species_values.csv\' "
+        "in the same directory as this program."
+        )
     sys.exit()
 
-default_colors = {
+DEFAULT_COLORS = {
             'Hominidae': '#7f48b5',
             'Hylobatidae': '#c195ed',
             'Cercopithecidae': '#f0bb3e',
             'Platyrrhini': '#f2e3bd'
             } 
 
-def var_combinations(cols):
+new_defaults = DEFAULT_COLORS.copy()
+
+def var_combinations(cols: list[int]) -> tuple[tuple[str, str], ...]:
     """Get all combinations (not repeated) for a list of columns.
 
     Args:
@@ -59,27 +67,23 @@ def var_combinations(cols):
     return var_combinations
 
 
-def set_colors(new_colors=None):
+def set_colors(new_colors: dict[str, str]) -> dict[str, str]:
     """Assign custom colors to species for visualisation purposes.
 
     Args:
         new_colors (dict of str:str, optional): species:color dictionary where valid species names are:
             'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
-            named colors or hex color codes. Defaults to empty dictionary.
+            named colors or hex color codes.
             
     Returns:
-        default_colors (dict of str: str): default_colors dict merged with values from new_colors. 
+        new_defauls (dict of str: str): default_colors dict merged with values from new_colors. 
 
     matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
     """
-    if new_colors is None:
-        new_colors = {}
+    new_defaults.update(new_colors)
+    return new_defaults
 
-    default_colors.update(new_colors)
-    return default_colors
-
-
-def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, **kwargs):
+def plot_variables(xy = None, colors=None, logged=False, save=False, show=False, **kwargs):
     """Plots brain morphology variables
 
     Args:
@@ -97,30 +101,33 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
         show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
         **kwargs (any): other keyword arguments from matplotlib.pyplot.scatter
     """
-
+    
     if xy is None:
         xy = var_combinations([4, 3, 1])
     elif any(isinstance(n, (int)) for n in xy):
         try:
             for idx in xy:
-                if idx > len(data.columns) or (data[data.columns[idx]].dtype != 'float64' or 'int64'):
+                if idx >= len(data.columns) or (data[data.columns[idx]].dtype != 'float64'):
                     xy.remove(idx)
-                    xy = var_combinations(xy)
+            if len(xy) >= 2:
+                xy = var_combinations(xy)
+            else:
+                raise AttributeError     
         except AttributeError:
             print(
-                '\nNo valid combinations could be made from the list passed to `xy`, and so the default combination'
-                ' was plotted. Please ensure the list has at least 2 valid indices, where such indices refer to'
-                ' columns containing floating-point numbers or integers. \n'
+                "\nNo valid combinations could be made from the list passed to `xy`, and so the default combination"
+                " [4, 3, 1] was plotted. Please ensure the list has at least 2 valid indices, where such indices refer to"
+                " columns containing floating-point numbers or integers.\n"
                 )
             xy = var_combinations([4, 3, 1])
 
     if colors is None:
-        colors = default_colors
+        colors = new_defaults
     else:
-        def_copy = default_colors.copy()
+        def_copy = new_defaults.copy()
         def_copy.update(colors)
         colors = def_copy
-
+   
     # Define scaling properties for each number of axes in a figure.
     left_margin = 2.5
     if len(xy) == 1:
@@ -181,8 +188,8 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
         elif logged:
             axs[i].set(
                 title=f'Logged Primate {xy[i][0]} against\n{xy[i][1]}',
-                xlabel=f'Logged {xy[i][0]}',
-                ylabel=f'Logged {xy[i][1]}'
+                xlabel=f'Log {xy[i][0]}',
+                ylabel=f'Log {xy[i][1]}'
                 )
             
             axs[i].set_xscale('log')
@@ -227,7 +234,7 @@ def plot_regression():
     plt.plot(x_lin_reg, y_lin_reg, c='k')
 
     
-def save_plots(figure, xy, logged):
+def save_plots(figure, xy: tuple[tuple[str, str]], logged) -> None:
     """Saves simple/log plots to respective folders.
 
     Each figure's save file is named as such:
@@ -253,7 +260,7 @@ def save_plots(figure, xy, logged):
                     png_id += 1
                 figure.savefig(f'Saved Simple Plots/Default Simple Plots - #{png_id:d}.png')
 
-                print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+                print(f"Default Plots Saved to {os.path.join(os.getcwd(), r'Saved Simple Plots')}")
 
             else:
                 while os.path.exists(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png'):
@@ -268,7 +275,7 @@ def save_plots(figure, xy, logged):
                     f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                     )
                 
-                print(f'Simple Plots saved to {os.path.join(os.getcwd(), r"Saved Simple Plots")}')
+                print(f"Simple Plots saved to {os.path.join(os.getcwd(), r'Saved Simple Plots')}")
             break
           
         elif logged:           
@@ -282,7 +289,7 @@ def save_plots(figure, xy, logged):
                     png_id += 1
                 figure.savefig(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png')
 
-                print(f'Default Plots Saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                print(f"Default Plots Saved to {os.path.join(os.getcwd(), r'Saved Log Plots')}")
 
             else:
                 while os.path.exists(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png'):
@@ -297,11 +304,11 @@ def save_plots(figure, xy, logged):
                     f'- Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
                     )
                 
-                print(f'Log Plots saved to {os.path.join(os.getcwd(), r"Saved Log Plots")}')
+                print(f"Log Plots saved to {os.path.join(os.getcwd(), r'Saved Log Plots')}")
             break
 
 
-def delete_folder(logged=False):
+def delete_folder(logged=False) -> None:
     """Deletes simple or log save folder depending on if logged=True is passed as an argument.
 
     Args:
@@ -315,15 +322,19 @@ def delete_folder(logged=False):
     try:
         shutil.rmtree(folder)
     except FileNotFoundError:
-        print(f'No "{os.path.basename(os.path.normpath(folder))}" folder exists in the current directory, '
-              f'and so could not be deleted.')
+        print(
+            f"No '{os.path.basename(os.path.normpath(folder))}' folder exists in the current directory, "
+            f"and so could not be deleted.")
 
 
 if __name__ == '__main__':
-    plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
-
-    # plot_variables(show=True)
-    plot_variables([0, 1, 5], colors={'Hominidae':'black'}, show=True, alpha=0.5)
-
+    # plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
+    # plot_variables([2, 0, 5], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
+    
+    plot_variables(show=True)
+    
+    # plot_variables(colors={'Hominidae':'Blue'}, show=True)
+    # set_colors(DEFAULT_COLORS)
+    
     # delete_folder(logged=True)
     # plot_regression()
