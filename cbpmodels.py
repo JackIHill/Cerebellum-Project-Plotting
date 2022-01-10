@@ -4,11 +4,6 @@ This script is used to create simple and logged scatter plots for cerebellum and
 You will be given the option to save simple and logged plots (to separate folders).
 """
 
-# TODO:
-#  1) Add logging and unit testing
-#  2) amend module docstring
-#  3) implement threading due to plot_variables inner function calls
-
 import os
 import sys
 import shutil
@@ -39,9 +34,14 @@ except FileNotFoundError:
           'in the same directory as this program.')
     sys.exit()
 
+default_colors = {
+            'Hominidae': '#7f48b5',
+            'Hylobatidae': '#c195ed',
+            'Cercopithecidae': '#f0bb3e',
+            'Platyrrhini': '#f2e3bd'
+            } 
 
-# Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
-# Add '2' to col_names list below if want to include. Column names extracted in order 4, 3, 1 for figure aesthetics.
+
 def var_combinations(cols):
     """Get all combinations (not repeated) for a list of columns.
 
@@ -54,12 +54,6 @@ def var_combinations(cols):
     var_combinations = tuple(combinations(data.columns[cols], 2))
     return var_combinations
 
-default_colors = {
-            'Hominidae': '#7f48b5',
-            'Hylobatidae': '#c195ed',
-            'Cercopithecidae': '#f0bb3e',
-            'Platyrrhini': '#f2e3bd'
-            } 
 
 def set_colors(new_colors=None):
     """Assign custom colors to species for visualisation purposes.
@@ -81,7 +75,7 @@ def set_colors(new_colors=None):
     return default_colors
 
 
-def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
+def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, **kwargs):
     """Plots brain morphology variables
 
     Args:
@@ -95,24 +89,26 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
         logged (bool, optional): produce simple (unlogged, False) or logged plots (True). Defaults to False.
         save (bool, optional): if True, save figure to 'Saved Simple Plots' or 'Saved Log Plots' folders, 
             respective of `logged`. Passes xy (tuple, optional) to save_plots() to provide detailed file names, 
-            and SIMPLE/LOG_PLOT_DETAILSD.txt files to the respective save folder. Defaults to False.
+            and SIMPLE/LOG_PLOT_DETAILS.txt files to the respective save folder. Defaults to False.
         show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
+        **kwargs (any): other keyword arguments from matplotlib.pyplot.scatter
     """
 
     if xy is None:
         xy = var_combinations([4, 3, 1])
-    elif isinstance(xy, list):
+    elif any(isinstance(n, (int)) for n in xy):
         try:
-            if all(0 < i <= 4 for i in xy):
-                xy = var_combinations(xy)
-            else:
-                print('\nAn invalid index value was passed to the `xy` keyword argument, and so the default'
-                    ' configuration of variables was plotted. Ensure that index values are not lower than 1'
-                    ' and do not exceed 4.\n')
-
-        except TypeError as t:
-            print('\nA list containing integers was not passed to `xy`, therefore the default configuration'
-                ' of variables was plotted. Ensure integers are not lower than 1 and do not exceed 4\n')
+            for idx in xy:
+                if idx > len(data.columns) or (data[data.columns[idx]].dtype != 'float64' or 'int64'):
+                    xy.remove(idx)
+                    xy = var_combinations(xy)
+        except AttributeError:
+            print(
+                '\nNo valid combinations could be made from the list passed to `xy`, and so the default combination'
+                ' was plotted. Please ensure the list has at least 2 valid indices, where such indices refer to'
+                ' columns containing floating-point numbers or integers. \n'
+                )
+            xy = var_combinations([4, 3, 1])
 
     if colors is None:
         colors = default_colors
@@ -160,7 +156,7 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False):
     axs = axs.flatten()
 
     for i, (x, y) in enumerate(xy):
-        axs[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k')
+        axs[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k', **kwargs)
 
         ax_legend = axs[i].legend(
             title='Taxon',
@@ -233,8 +229,8 @@ def save_plots(figure, xy, logged):
     Each figure's save file is named as such:
     '(number of plots in figure) Simple Plot(s) - #(number denoting order in which file was saved).
 
-    SIMPLE_PLOT_DETAILS.txt or LOG_PLOT_DETAILS.txt files also created containing number of plots, number
-    denoting order save file, value of `xy`, and figure creation time. 
+    SIMPLE_PLOT_DETAILS.txt or LOG_PLOT_DETAILS.txt files also created containing number of plots, save file order, 
+    value of `xy`, and figure creation time. 
 
     Args:
         figure (Matplotlib figure): the current figure object defined within plot_variables().
@@ -320,13 +316,10 @@ def delete_folder(logged=False):
 
 
 if __name__ == '__main__':
-    # plot_variables((('Cerebellum Surface Area', 'Cerebellum Volume'),),)
+    plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
 
-    plot_variables(show=True)
-    plot_variables(colors={'Hominidae':'blue'}, show=True)
-
-    set_colors({'Hominidae':'red'})
-    plot_variables(show=True)
+    # plot_variables(show=True)
+    plot_variables([0, 1, 5], colors={'Hominidae':'black'}, show=True, alpha=0.5)
 
     # delete_folder(logged=True)
     # plot_regression()
