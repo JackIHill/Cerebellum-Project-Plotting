@@ -24,6 +24,7 @@ Produces:
 
 Specifying n number of variable combination tuples will plot n number of plots on the figure. ```logged=True``` can also be passed, to log every plot in the figure. Thus:
 
+
 ```python
 plot_variables(
     (('Cerebrum Volume', 'Cerebellum Volume'),),  
@@ -87,6 +88,7 @@ To easily delete these folders, ```delete_folders(logged=True)``` for the 'Saved
 <br>
 
 ```plot_regression()``` plots linear regression line for the volume-against-volume plot.
+
 
 ## About the Cerebellum Project
 
