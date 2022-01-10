@@ -39,6 +39,12 @@ except FileNotFoundError:
           'in the same directory as this program.')
     sys.exit()
 
+default_colors = {
+            'Hominidae': '#7f48b5',
+            'Hylobatidae': '#c195ed',
+            'Cercopithecidae': '#f0bb3e',
+            'Platyrrhini': '#f2e3bd'
+            } 
 
 # Column 3 (Cerebrum Surface Area) is not plotted due to not enough data.
 # Add '2' to col_names list below if want to include. Column names extracted in order 4, 3, 1 for figure aesthetics.
