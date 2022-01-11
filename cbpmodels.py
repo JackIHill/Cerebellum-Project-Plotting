@@ -7,7 +7,7 @@ You will be given the option to save simple and logged plots (to separate folder
 # TODO:
 #  1) Add logging and unit testing
 #  2) amend module docstring
-#  3) implement threading due to plot_variables inner function calls\
+#  3) implement threading due to plot_variables inner function calls
 #  4) use vars to hold information for creating logged save files to minimise repeating myself. 
 #  5) amend doc for set_colors to be able to use default colors to revert to normal
 #  6) move var_combinations try except into var_combinations func?
@@ -17,7 +17,6 @@ import sys
 import shutil
 from itertools import combinations
 from datetime import datetime
-from typing import Sequence
 
 import pandas as pd
 import numpy as np
@@ -76,14 +75,15 @@ def set_colors(new_colors: dict[str, str]) -> dict[str, str]:
             named colors or hex color codes.
             
     Returns:
-        new_defauls (dict of str: str): default_colors dict merged with values from new_colors. 
+        new_defaults (dict of str: str): default_colors dict merged with values from new_colors. 
 
     matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
     """
     new_defaults.update(new_colors)
     return new_defaults
 
-def plot_variables(xy = None, colors=None, logged=False, save=False, show=False, **kwargs):
+
+def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, **kwargs):
     """Plots brain morphology variables
 
     Args:
@@ -101,23 +101,31 @@ def plot_variables(xy = None, colors=None, logged=False, save=False, show=False,
         show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
         **kwargs (any): other keyword arguments from matplotlib.pyplot.scatter
     """
-    
     if xy is None:
         xy = var_combinations([4, 3, 1])
-    elif any(isinstance(n, (int)) for n in xy):
+    elif any(isinstance(col_index, (int)) for col_index in xy):
         try:
-            for idx in xy:
-                if idx >= len(data.columns) or (data[data.columns[idx]].dtype != 'float64'):
-                    xy.remove(idx)
+            invalid_indices = []
+            for col_index in xy:
+                if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != 'float64'):
+                    invalid_indices.append(col_index)
+            xy = [x for x in xy if x not in invalid_indices]
             if len(xy) >= 2:
+                if invalid_indices:
+                    print(
+                        f'The following invalid indices were passed to `xy`: {invalid_indices}.\n'
+                        f'Combinations were therefore made from the following indices only: {xy}.'
+                        )
                 xy = var_combinations(xy)
             else:
                 raise AttributeError     
         except AttributeError:
             print(
-                "\nNo valid combinations could be made from the list passed to `xy`, and so the default combination"
-                " [4, 3, 1] was plotted. Please ensure the list has at least 2 valid indices, where such indices refer to"
-                " columns containing floating-point numbers or integers.\n"
+                f'\nNo valid combinations could be made from the list passed to `xy`.'
+                f' {"The only valid number passed was: " + ("".join(str(x) for x in xy)) + "." if xy else ""}\n'
+                f' The default combination [4, 3, 1] was therefore plotted. For custom combination-plotting,'
+                f' please ensure the list has at least 2 valid indices, where such indices refer to columns'
+                f' containing floating-point numbers or integers.\n'
                 )
             xy = var_combinations([4, 3, 1])
 
@@ -329,12 +337,10 @@ def delete_folder(logged=False) -> None:
 
 if __name__ == '__main__':
     # plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
-    # plot_variables([2, 0, 5], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
-    
-    plot_variables(show=True)
-    
+
+    plot_variables([1, 7, 0, 6, 8, 2], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
+   
     # plot_variables(colors={'Hominidae':'Blue'}, show=True)
-    # set_colors(DEFAULT_COLORS)
     
     # delete_folder(logged=True)
     # plot_regression()
