@@ -109,7 +109,8 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
             for col_index in xy:
                 if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != 'float64'):
                     invalid_indices.append(col_index)
-            xy = [x for x in xy if x not in invalid_indices]
+            xy = [col_index for col_index in xy if col_index not in invalid_indices]
+            
             if len(xy) >= 2:
                 if invalid_indices:
                     print(
@@ -123,7 +124,7 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
             print(
                 f'\nNo valid combinations could be made from the list passed to `xy`.'
                 f' {"The only valid number passed was: " + ("".join(str(x) for x in xy)) + "." if xy else ""}\n'
-                f' The default combination [4, 3, 1] was therefore plotted. For custom combination-plotting,'
+                f'The default combination [4, 3, 1] was therefore plotted. For custom combination-plotting,'
                 f' please ensure the list has at least 2 valid indices, where such indices refer to columns'
                 f' containing floating-point numbers or integers.\n'
                 )
@@ -200,10 +201,10 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
                 ylabel=f'Log {xy[i][1]}'
                 )
             
-            axs[i].set_xscale('log')
+            axs[i].set_xscale('symlog')
             axs[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
 
-            axs[i].set_yscale('log')   
+            axs[i].set_yscale('symlog')   
             axs[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
             axs[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
 
@@ -256,64 +257,35 @@ def save_plots(figure, xy: tuple[tuple[str, str]], logged) -> None:
         xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
         logged (bool): determines creation of 'Saved Simple Plots' (False), or 'Saved Log Plots' folders (True).
     """
-    while True:
-        if not logged:
-            save_folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+    
+    log_or_simple = "Log" if logged else "Simple"
+    default_check = "Default" if xy == var_combinations([4, 3, 1]) else log_or_simple
+    len_if_custom = str(len(xy)) + " " if xy != var_combinations([4, 3, 1]) else ""
+    is_len_plural = "s" if len(xy) > 1 else ""
 
-            png_id = 1
-            if xy is var_combinations:
-                while os.path.exists(f'Saved Simple Plots/Default Simple Plots - #{png_id:d}.png'):
-                    png_id += 1
-                figure.savefig(f'Saved Simple Plots/Default Simple Plots - #{png_id:d}.png')
+    save_folder = os.path.join(os.getcwd(), f'Saved {log_or_simple} Plots')
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
 
-                print(f"Default Plots Saved to {os.path.join(os.getcwd(), r'Saved Simple Plots')}")
+    png_id = 1
+    while os.path.exists(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png'):
+        png_id += 1
+    figure.savefig(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png')
 
-            else:
-                while os.path.exists(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png'):
-                    png_id += 1
-                figure.savefig(f'Saved Simple Plots/{len(xy)} Simple Plot(s) - #{png_id:d}.png')
-
-            var_list = "\n".join(str(x) for x in xy)
-            with open(f'Saved Simple Plots/SIMPLE_PLOT_DETAILS.txt', 'a') as save_details:
-                save_details.write(
-                    f'{len(xy)} Simple Plot(s) - #{png_id:d}'
-                    f' - {var_list}\n'
-                    f' - Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                    )
-                
-                print(f"Simple Plots saved to {os.path.join(os.getcwd(), r'Saved Simple Plots')}")
-            break
-          
-        elif logged:           
-            save_folder = os.path.join(os.getcwd(), r'Saved Log Plots')
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
-
-            png_id = 1
-            if xy is var_combinations:
-                while os.path.exists(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png'):
-                    png_id += 1
-                figure.savefig(f'Saved Log Plots/Default Log Plots - #{png_id:d}.png')
-
-                print(f"Default Plots Saved to {os.path.join(os.getcwd(), r'Saved Log Plots')}")
-
-            else:
-                while os.path.exists(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png'):
-                    png_id += 1
-                figure.savefig(f'Saved Log Plots/{len(xy)} Log Plot(s) - #{png_id:d}.png')
-
-            var_list = "\n".join(str(x) for x in xy)
-            with open(f'Saved Log Plots/LOG_PLOT_DETAILS.txt', 'a') as save_details:
-                save_details.write(
-                    f'{len(xy)} Log Plot(s) - #{png_id:d}'
-                    f'\n{var_list}\n'
-                    f'- Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n\n'
-                    )
-                
-                print(f"Log Plots saved to {os.path.join(os.getcwd(), r'Saved Log Plots')}")
-            break
+    var_list = "\n".join(str(x) for x in xy)
+    with open(f'Saved {log_or_simple} Plots/{log_or_simple.upper()}_PLOT_DETAILS.txt', 'a') as save_details:
+        save_details.write(
+            f'{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d} '
+            f'-\n{var_list}\n'
+            f'- Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n'
+            f'------------------------------------------------------\n'
+            )
+        
+        print(
+            f'{default_check + " " + log_or_simple if xy == var_combinations([4, 3, 1]) else default_check}'
+            f' Plot{is_len_plural} saved to {os.path.join(os.getcwd(), f"Saved {log_or_simple} Plots")}'
+            )
+        
 
 
 def delete_folder(logged=False) -> None:
@@ -338,9 +310,9 @@ def delete_folder(logged=False) -> None:
 if __name__ == '__main__':
     # plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
 
-    plot_variables([1, 7, 0, 6, 8, 2], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
+    plot_variables([1, 7, 0, 6, 8], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
    
-    # plot_variables(colors={'Hominidae':'Blue'}, show=True)
+    # plot_variables(colors={'Hominidae':'Blue'}, show=True, save=True)
     
     # delete_folder(logged=True)
     # plot_regression()
