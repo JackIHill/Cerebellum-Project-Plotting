@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 """
-This script is used to create simple and logged scatter plots for cerebellum and cerebrum morphology in primates.
-You will be given the option to save simple and logged plots (to separate folders).
+Create simple and/or logged scatter plots for cerebellum and cerebrum morphology in primates.
 """
 
 # TODO:
 #  1) Add logging and unit testing
 #  2) amend module docstring
 #  3) implement threading due to plot_variables inner function calls
-#  4) use vars to hold information for creating logged save files to minimise repeating myself. 
-#  5) amend doc for set_colors to be able to use default colors to revert to normal
-#  6) move var_combinations try except into var_combinations func?
+#  4) amend doc/readme for set_colors to be able to use default colors to revert to normal
 
 import os
 import sys
@@ -54,25 +51,56 @@ DEFAULT_COLORS = {
 new_defaults = DEFAULT_COLORS.copy()
 
 def var_combinations(cols: list[int]) -> tuple[tuple[str, str], ...]:
-    """Get all combinations (not repeated) for a list of columns.
+    """Get all pairwise combinations (not repeated) for a list of columns. Return nested tuples containing
+    these combinations.
 
     Args:
         cols (list of int): list of integers representing column index values from .csv. 
 
     Returns:
         tuple: tuple of tuples, each containing independent/dependent variable pairs.
+    
+    Raises:
+        AttributionError: if the number of valid cols in `cols` is lower than 2 (the required minimum for making
+        pairwise combinations). 
     """
-    var_combinations = tuple(combinations(data.columns[cols], 2))
+    try:
+        invalid_indices = []
+        for col_index in cols:
+            if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != 'float64'):
+                invalid_indices.append(col_index)
+        valid_cols = [col_index for col_index in cols if col_index not in invalid_indices]
+        
+        if len(valid_cols) >= 2:
+            if invalid_indices:
+                print(
+                    f'The following invalid indices were passed to `xy`: {invalid_indices}.\n'
+                    f'Combinations were therefore made from the following indices only: {valid_cols}.'
+                    )
+            var_combinations = tuple(combinations(data.columns[valid_cols], 2))
+        else:
+            raise AttributeError     
+    except AttributeError:
+        print(
+            f'\nNo valid combinations could be made from the list passed to `xy`. '
+            f'{"The only valid index was: " + ("".join(str(x) for x in valid_cols)) + "." if valid_cols else ""}'
+            f' The default combination [4, 3, 1] was therefore plotted.\n\nFor custom combination-plotting,'
+            f' please ensure the list has at least 2 valid indices, where such indices refer to columns'
+            f' containing floating-point numbers or integers.\n'
+            )
+        var_combinations = tuple(combinations(data.columns[[4, 3, 1]], 2))
+
     return var_combinations
 
 
 def set_colors(new_colors: dict[str, str]) -> dict[str, str]:
-    """Assign custom colors to species for visualisation purposes.
+    """Assign custom default species-color map for visualisation. Return new default color map.
 
     Args:
         new_colors (dict of str:str, optional): species:color dictionary where valid species names are:
             'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
-            named colors or hex color codes.
+            named colors or hex color codes. Set `new_colors` to DEFAULT_COLORS (after setting new_defauls)
+            to revert color map to original default values. 
             
     Returns:
         new_defaults (dict of str: str): default_colors dict merged with values from new_colors. 
@@ -92,8 +120,8 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
             Ensure a minimum of two integers are defined. Defaults to var_combinations([4, 3, 1]).
         colors (dict of str: str), optional): species:color dictionary where valid species names are:
             'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
-            named colors or hex color codes. Maps the respective colors to each species' plot markers. Defaults to: 
-            {'Hominidae': '#7f48b5', 'Hylobatidae': '#c195ed', 'Cercopithecidae': '#f0bb3e', 'Platyrrhini': '#f2e3bd'}.
+            named colors or hex color codes. Maps the respective colors to each species' plot markers. Defaults to
+            new_defaults (copy of DEFAULT_COLORS).
         logged (bool, optional): produce simple (unlogged, False) or logged plots (True). Defaults to False.
         save (bool, optional): if True, save figure to 'Saved Simple Plots' or 'Saved Log Plots' folders, 
             respective of `logged`. Passes xy (tuple, optional) to save_plots() to provide detailed file names, 
@@ -104,31 +132,7 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
     if xy is None:
         xy = var_combinations([4, 3, 1])
     elif any(isinstance(col_index, (int)) for col_index in xy):
-        try:
-            invalid_indices = []
-            for col_index in xy:
-                if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != 'float64'):
-                    invalid_indices.append(col_index)
-            xy = [col_index for col_index in xy if col_index not in invalid_indices]
-            
-            if len(xy) >= 2:
-                if invalid_indices:
-                    print(
-                        f'The following invalid indices were passed to `xy`: {invalid_indices}.\n'
-                        f'Combinations were therefore made from the following indices only: {xy}.'
-                        )
-                xy = var_combinations(xy)
-            else:
-                raise AttributeError     
-        except AttributeError:
-            print(
-                f'\nNo valid combinations could be made from the list passed to `xy`.'
-                f' {"The only valid number passed was: " + ("".join(str(x) for x in xy)) + "." if xy else ""}\n'
-                f'The default combination [4, 3, 1] was therefore plotted. For custom combination-plotting,'
-                f' please ensure the list has at least 2 valid indices, where such indices refer to columns'
-                f' containing floating-point numbers or integers.\n'
-                )
-            xy = var_combinations([4, 3, 1])
+        xy = var_combinations(xy)
 
     if colors is None:
         colors = new_defaults
@@ -257,7 +261,6 @@ def save_plots(figure, xy: tuple[tuple[str, str]], logged) -> None:
         xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
         logged (bool): determines creation of 'Saved Simple Plots' (False), or 'Saved Log Plots' folders (True).
     """
-    
     log_or_simple = "Log" if logged else "Simple"
     default_check = "Default" if xy == var_combinations([4, 3, 1]) else log_or_simple
     len_if_custom = str(len(xy)) + " " if xy != var_combinations([4, 3, 1]) else ""
@@ -287,32 +290,27 @@ def save_plots(figure, xy: tuple[tuple[str, str]], logged) -> None:
             )
         
 
-
 def delete_folder(logged=False) -> None:
     """Deletes simple or log save folder depending on if logged=True is passed as an argument.
 
     Args:
         logged (bool): determines deletion of simple plot (False), or log plot save folders (True).
     """
-    if not logged:
-        folder = os.path.join(os.getcwd(), r'Saved Simple Plots')
-    else:
-        folder = os.path.join(os.getcwd(), r'Saved Log Plots')
+    folder = os.path.join(os.getcwd(), f'Saved {"Log" if logged else "Simple"} Plots')
 
     try:
         shutil.rmtree(folder)
     except FileNotFoundError:
         print(
             f"No '{os.path.basename(os.path.normpath(folder))}' folder exists in the current directory, "
-            f"and so could not be deleted.")
+            f"and so could not be deleted."
+            )
 
 
 if __name__ == '__main__':
     # plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
-
     plot_variables([1, 7, 0, 6, 8], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
    
     # plot_variables(colors={'Hominidae':'Blue'}, show=True, save=True)
     
-    # delete_folder(logged=True)
     # plot_regression()

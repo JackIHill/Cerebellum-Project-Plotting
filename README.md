@@ -71,11 +71,14 @@ To set custom color maps for any or all taxon for all subsequent plots, pass a d
 
 ```python
 plot_variables(show=True) # plot all taxon with module-defined default color map
+
 plot_variables(colors={'Hylobatidae':'blue'}, show=True) # change plot's Hylobatidae colors, other taxa have default colors
 
 set_colors({'Hominidae':'red'}) # set default color for Hominidae plot points, for all subsequent plots. 
     
 plot_variables(show=True) # default color for Hominidae is red, all other colors are original (Hylobatidae no longer blue). 
+
+set_colors(DEFAULT_COLORS) # set default colors to module-defined default color map
 ```
 
 <br>
