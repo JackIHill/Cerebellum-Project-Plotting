@@ -4,10 +4,8 @@ Create simple and/or logged scatter plots for cerebellum and cerebrum morphology
 """
 
 # TODO:
-#  1) Add logging and unit testing
-#  2) amend module docstring
-#  3) implement threading due to plot_variables inner function calls
-#  4) amend doc/readme for set_colors to be able to use default colors to revert to normal
+# 1) clean up data import. take filename as arg, if filename is 'all_species_values', do the stuff with it. 
+# 2) add install requirements to readme
 
 import os
 import sys
@@ -21,6 +19,14 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
 
+DEFAULT_COLORS = {
+            'Hominidae': '#7f48b5',
+            'Hylobatidae': '#c195ed',
+            'Cercopithecidae': '#f0bb3e',
+            'Platyrrhini': '#f2e3bd'
+            } 
+
+new_defaults = DEFAULT_COLORS.copy()
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -41,14 +47,6 @@ except FileNotFoundError:
         )
     sys.exit()
 
-DEFAULT_COLORS = {
-            'Hominidae': '#7f48b5',
-            'Hylobatidae': '#c195ed',
-            'Cercopithecidae': '#f0bb3e',
-            'Platyrrhini': '#f2e3bd'
-            } 
-
-new_defaults = DEFAULT_COLORS.copy()
 
 def var_combinations(cols: list[int]) -> tuple[tuple[str, str], ...]:
     """Get all pairwise combinations (not repeated) for a list of columns. Return nested tuples containing
@@ -65,21 +63,24 @@ def var_combinations(cols: list[int]) -> tuple[tuple[str, str], ...]:
         pairwise combinations). 
     """
     try:
-        invalid_indices = []
+        invalid_cols = []
         for col_index in cols:
-            if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != 'float64'):
-                invalid_indices.append(col_index)
-        valid_cols = [col_index for col_index in cols if col_index not in invalid_indices]
+            if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != ('float64' or 'int64')):
+                invalid_cols.append(col_index)
+
+        valid_cols = [col_index for col_index in cols if col_index not in invalid_cols]
         
         if len(valid_cols) >= 2:
-            if invalid_indices:
+            if invalid_cols:
                 print(
-                    f'The following invalid indices were passed to `xy`: {invalid_indices}.\n'
+                    f'The following invalid indices were passed to `xy`: {invalid_cols}.\n'
                     f'Combinations were therefore made from the following indices only: {valid_cols}.'
                     )
+
             var_combinations = tuple(combinations(data.columns[valid_cols], 2))
         else:
-            raise AttributeError     
+            raise AttributeError
+
     except AttributeError:
         print(
             f'\nNo valid combinations could be made from the list passed to `xy`. '
@@ -157,32 +158,32 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
 
     # Define scaling properties for subplot when more than 3 var combinations are plotted.
     if len(xy) <= 3:
-        cols = len(xy)
-        rows = 1
+        num_cols = len(xy)
+        num_rows = 1
     else:
-        cols = int(len(xy) // 1.66)
-        rows = 2
-
-    # Remove minor ticks for logged plots. 
-    plt.rcParams['xtick.minor.size'] = 0
-    plt.rcParams['ytick.minor.size'] = 0
+        num_cols = int(len(xy) // 1.66)
+        num_rows = 2
 
     # Give legend markers same color as predefined taxon colors. Marker placed on white line. 
+    # edgecolor = kwargs.get('edgecolor', 'k')
+    edgecolor = kwargs.pop('edgecolor', 'k')
+    marker = kwargs.pop('marker', 'o')
+
     handles = [
         Line2D([0], [0],
-        color='w', marker='o', markerfacecolor=v,
-        markeredgecolor='k', markeredgewidth='0.5',
-        markersize=4, label=k,
-        ) for k, v in colors.items()
+        color='w', marker=marker, markerfacecolor=color,
+        markeredgecolor=edgecolor, markeredgewidth='0.5',
+        markersize=4, label=species,
+        ) for species, color in colors.items()
         ]
     
-    fig, axs = plt.subplots(rows, cols, figsize=(fig_width, 4), squeeze=False)
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(fig_width, 4), squeeze=False)
     axs = axs.flatten()
 
-    for i, (x, y) in enumerate(xy):
-        axs[i].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor='k', **kwargs)
+    for ax_n, (x, y) in enumerate(xy):
+        axs[ax_n].scatter(data[x], data[y], c=data.Taxon.map(colors), edgecolor=edgecolor, marker=marker, **kwargs)
 
-        ax_legend = axs[i].legend(
+        ax_legend = axs[ax_n].legend(
             title='Taxon',
             title_fontsize='9',
             handles=handles,
@@ -191,42 +192,40 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
             )
         ax_legend.get_frame().set_color('white')
 
-        if not logged:
-            axs[i].set(
-                title=f'Primate {xy[i][0]} against\n{xy[i][1]}',
-                xlabel=f'{xy[i][0]}',
-                ylabel=f'{xy[i][1]}'
-                )
-        
-        elif logged:
-            axs[i].set(
-                title=f'Logged Primate {xy[i][0]} against\n{xy[i][1]}',
-                xlabel=f'Log {xy[i][0]}',
-                ylabel=f'Log {xy[i][1]}'
+        axs[ax_n].set(
+                title=f'{"Logged " if logged else ""}Primate {xy[ax_n][0]} against\n{xy[ax_n][1]}',
+                xlabel=f'{"Log " if logged else ""}{xy[ax_n][0]}',
+                ylabel=f'{"Log " if logged else ""}{xy[ax_n][1]}'
                 )
             
-            axs[i].set_xscale('symlog')
-            axs[i].get_xaxis().set_major_formatter(tk.ScalarFormatter())
+        if logged:
+            axs[ax_n].set_xscale('symlog')
+            axs[ax_n].get_xaxis().set_major_formatter(tk.ScalarFormatter())
 
-            axs[i].set_yscale('symlog')   
-            axs[i].get_yaxis().set_major_formatter(tk.ScalarFormatter())
-            axs[i].set_yticks([10, 25, 50, 100, 250, 500, 1000])
+            axs[ax_n].set_yscale('symlog')   
+            axs[ax_n].get_yaxis().set_major_formatter(tk.ScalarFormatter())
+            axs[ax_n].set_yticks([10, 25, 50, 100, 250, 500, 1000])
 
-            # These variables need custom xticks to better represent the range of values.
+            # These xy values need custom xticks to better represent the range of values.
             tick_list = [5, 10, 25, 50, 100, 200, 400, 1000]
             if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
-                axs[i].set_xticks(tick_list)
+                axs[ax_n].set_xticks(tick_list)
             else:
-                axs[i].set_xticks(tick_list[:-1])
+                axs[ax_n].set_xticks(tick_list[:-1])
+
+            # Remove minor ticks for logged plots. 
+            plt.rcParams['xtick.minor.size'] = 0
+            plt.rcParams['ytick.minor.size'] = 0
 
         fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     
     if save:
-        save_plots(fig, xy, logged)
+        save_plots(fig=fig, xy=xy, logged=logged)
 
     if show:
         plt.show()
-
+    
+    return fig, xy, logged
 
 def plot_regression():
     """Plots linear regression line for the volume-against-volume plot."""
@@ -247,7 +246,7 @@ def plot_regression():
     plt.plot(x_lin_reg, y_lin_reg, c='k')
 
     
-def save_plots(figure, xy: tuple[tuple[str, str]], logged) -> None:
+def save_plots(*args, fig=None, xy=None, logged=None) -> None:
     """Saves simple/log plots to respective folders.
 
     Each figure's save file is named as such:
@@ -261,34 +260,42 @@ def save_plots(figure, xy: tuple[tuple[str, str]], logged) -> None:
         xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
         logged (bool): determines creation of 'Saved Simple Plots' (False), or 'Saved Log Plots' folders (True).
     """
-    log_or_simple = "Log" if logged else "Simple"
-    default_check = "Default" if xy == var_combinations([4, 3, 1]) else log_or_simple
-    len_if_custom = str(len(xy)) + " " if xy != var_combinations([4, 3, 1]) else ""
-    is_len_plural = "s" if len(xy) > 1 else ""
+    def save():
+        log_or_simple = "Log" if logged else "Simple"
+        default_check = "Default" if xy == var_combinations([4, 3, 1]) else log_or_simple
+        len_if_custom = str(len(xy)) + " " if xy != var_combinations([4, 3, 1]) else ""
+        is_len_plural = "s" if len(xy) > 1 else ""
 
-    save_folder = os.path.join(os.getcwd(), f'Saved {log_or_simple} Plots')
-    if not os.path.exists(save_folder):
-        os.makedirs(save_folder)
+        save_folder = os.path.join(os.getcwd(), f'Saved {log_or_simple} Plots')
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
 
-    png_id = 1
-    while os.path.exists(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png'):
-        png_id += 1
-    figure.savefig(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png')
+        png_id = 1
+        while os.path.exists(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png'):
+            png_id += 1
+        figure.savefig(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png')
 
-    var_list = "\n".join(str(x) for x in xy)
-    with open(f'Saved {log_or_simple} Plots/{log_or_simple.upper()}_PLOT_DETAILS.txt', 'a') as save_details:
-        save_details.write(
-            f'{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d} '
-            f'-\n{var_list}\n'
-            f'- Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n'
-            f'------------------------------------------------------\n'
-            )
-        
-        print(
-            f'{default_check + " " + log_or_simple if xy == var_combinations([4, 3, 1]) else default_check}'
-            f' Plot{is_len_plural} saved to {os.path.join(os.getcwd(), f"Saved {log_or_simple} Plots")}'
-            )
-        
+        var_list = "\n".join(str(x) for x in xy)
+        with open(f'Saved {log_or_simple} Plots/{log_or_simple.upper()}_PLOT_DETAILS.txt', 'a') as save_details:
+            save_details.write(
+                f'{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d} '
+                f'-\n{var_list}\n'
+                f'- Figure Created on {datetime.now().strftime("%d-%m-%Y at %H:%M:%S")}\n'
+                f'------------------------------------------------------\n'
+                )
+            
+            print(
+                f'- {default_check + " " + log_or_simple if xy == var_combinations([4, 3, 1]) else default_check}'
+                f' Plot{is_len_plural} saved to {os.path.join(os.getcwd(), f"Saved {log_or_simple} Plots")}\n'
+                )
+    if args:
+        for fig in args:
+            figure, xy, logged = fig
+            save()
+    else:
+        figure, xy, logged = fig, xy, logged
+        save()
+    
 
 def delete_folder(logged=False) -> None:
     """Deletes simple or log save folder depending on if logged=True is passed as an argument.
@@ -306,11 +313,6 @@ def delete_folder(logged=False) -> None:
             f"and so could not be deleted."
             )
 
-
 if __name__ == '__main__':
-    # plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],], logged=True, show=True)
-    plot_variables([1, 7, 0, 6, 8], colors={'Hominidae':'lime'}, show=True, alpha=0.5)
-   
-    # plot_variables(colors={'Hominidae':'Blue'}, show=True, save=True)
-    
+    plot_variables()
     # plot_regression()
