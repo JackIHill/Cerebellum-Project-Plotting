@@ -100,7 +100,7 @@ cbp.set_colors({'Hominidae':'red'}) # set default color for Hominidae plot point
     
 cbp.plot_variables(show=True) # default color for Hominidae is red, all other colors are original (Hylobatidae no longer blue). 
 
-cbp.set_colors(DEFAULT_COLORS) # set default colors to module-defined default color map
+cbp.set_colors(cbp.DEFAULT_COLORS) # set default colors to module-defined default color map
 ```
 
 <br>
