@@ -5,11 +5,30 @@ CSV will be updated in the future as the project progresses.
 
 - [About the Cerebellum Project](#about-the-cerebellum-project)
 
-## Usage
-```import cbpmodels as cbp```
-<br>
-### <ins>Functions<ins>
-<br>
+## Setup
+Change directories to the project directory:
+```
+cd \path\to\Cerebellum-Project-Plotting
+```
+Create/activate virtual environment:
+
+```
+pip install virtualenv
+virtualenv my_env
+
+source \my_env\scripts\activate
+```
+Install requirements:
+```
+pip install -r requirements.txt
+```
+Import module:
+```python
+import cbpmodels as cbp
+```
+
+## <ins>Usage<ins>
+
 ```plot_variables()```: Plots brain morphology variables with a legend and data point colours mapped to taxa.
 <br>
 <br>
@@ -61,12 +80,12 @@ column index 4 = Cerebrum Volume <br>
 Manually change the color map for the current plot using the ```colors``` keyword. Pass a dictionary containing a taxon name key and a color value, where valid taxa are 'Hominidae', 'Hylobatidae', 'Cercopithecidae' and 'Platyrrhini' and valid colors are [matplotlib named colors](https://matplotlib.org/stable/gallery/color/named_colors.html) or hex color codes. Thus:
 
 ```python
-cbp.plot_variables(colors={'Hominidae':'blue'}, show=True)
+cbp.plot_variables(colors={'Hominidae':'#5AEC51'}, show=True)
 ``` 
 
 will modify the color map for the taxon Hominidae, leaving all other taxon color maps as their default, as such:
 
-![default_plot_colored_diff](https://user-images.githubusercontent.com/73407206/148591146-3494d9ef-c56a-4fcd-90a9-a2fac7fb887f.png)
+![lime_color_plot](https://user-images.githubusercontent.com/73407206/149395907-5c495800-eb1b-4cb8-ae66-313596effa05.png)
 
 <br>
 
