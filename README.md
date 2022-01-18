@@ -3,6 +3,7 @@ Create plots for cerebellar and cerebral morphology in a range of primates.
 Run alongside csv file containing brain morphological data from a range of studies.
 CSV will be updated in the future as the project progresses.
 
+- [Usage](#usage)
 - [About the Cerebellum Project](#about-the-cerebellum-project)
 
 ## Setup
@@ -100,7 +101,7 @@ cbp.set_colors({'Hominidae':'red'}) # set default color for Hominidae plot point
     
 cbp.plot_variables(show=True) # default color for Hominidae is red, all other colors are original (Hylobatidae no longer blue). 
 
-cbp.set_colors(DEFAULT_COLORS) # set default colors to module-defined default color map
+cbp.set_colors(cbp.DEFAULT_COLORS) # set default colors to module-defined default color map
 ```
 
 <br>
