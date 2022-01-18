@@ -5,7 +5,12 @@ Create simple and/or logged scatter plots for cerebellum and cerebrum morphology
 
 # TODO:
 # 1) clean up data import. take filename as arg, if filename is 'all_species_values', do the stuff with it. 
-# 2) add install requirements to readme
+# 2) fix plt.show() showing all plots when called on one plot, when plots are assigned to vars. 
+# 3) give name of var assigned to fig when saved, and tell user name of fig which had invalid cols (can use plt.getfignums()) 
+# 4) func/kwarg for get current default color list.
+# 5) function to draw arrow towards a selected point (e.g. towards homo sapiens). Start by taking x and y coords
+#       of each point, and drawing arrows which are displaced slightly from those coordinates. Alternatively option
+#       to change the color of one species. plt.text can be used to plot label at a coordinate pos.
 
 import os
 import sys
@@ -70,12 +75,11 @@ def var_combinations(cols: list[int]) -> tuple[tuple[str, str], ...]:
 
         valid_cols = [col_index for col_index in cols if col_index not in invalid_cols]
         
-        if len(valid_cols) >= 2:
-            if invalid_cols:
-                print(
-                    f'The following invalid indices were passed to `xy`: {invalid_cols}.\n'
-                    f'Combinations were therefore made from the following indices only: {valid_cols}.'
-                    )
+        if len(valid_cols) >= 2 and invalid_cols:
+            print(
+                f'The following invalid indices were passed to `xy`: {invalid_cols}.\n'
+                f'Combinations were therefore made from the following indices only: {valid_cols}.'
+                )
 
             var_combinations = tuple(combinations(data.columns[valid_cols], 2))
         else:
@@ -113,11 +117,11 @@ def set_colors(new_colors: dict[str, str]) -> dict[str, str]:
 
 
 def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, **kwargs):
-    """Plots brain morphology variables
+    """Plots brain morphology variables with a legend and data point colours mapped to taxa.
 
     Args:
         xy (tuple or list, optional): accepts tuple of tuples, each containing independent/dependent variable pairs, 
-            or a list of integers representing column index values from .csv, to be passed to var_combinations().
+            or a list of integers representing column index values from .csv, to be passed to `var_combinations()`.
             Ensure a minimum of two integers are defined. Defaults to var_combinations([4, 3, 1]).
         colors (dict of str: str), optional): species:color dictionary where valid species names are:
             'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
@@ -129,6 +133,12 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
             and SIMPLE/LOG_PLOT_DETAILS.txt files to the respective save folder. Defaults to False.
         show (bool, optional): if True, call plt.show() to output figures to new windows. Defaults to False.
         **kwargs (any): other keyword arguments from matplotlib.pyplot.scatter
+
+    Returns:
+        fig (matplotlib.figure.Figure instance): reference to Figure instance for matplotlib.pyplot.savefig 
+            in save_plots().
+        xy (tuple): tuple of tuples, each containing independent/dependent variable pairs. For save file information.
+        logged (bool): value of `logged` for save file/folder information.
     """
     if xy is None:
         xy = var_combinations([4, 3, 1])
@@ -220,11 +230,12 @@ def plot_variables(xy=None, colors=None, logged=False, save=False, show=False, *
         fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     
     if save:
-        save_plots(fig=fig, xy=xy, logged=logged)
+        plot = fig, xy, logged
+        save_plots(plot)
 
     if show:
         plt.show()
-    
+
     return fig, xy, logged
 
 def plot_regression():
@@ -245,8 +256,8 @@ def plot_regression():
     y_lin_reg = predict(x_lin_reg)
     plt.plot(x_lin_reg, y_lin_reg, c='k')
 
-    
-def save_plots(*args, fig=None, xy=None, logged=None) -> None:
+
+def save_plots(*args) -> None:
     """Saves simple/log plots to respective folders.
 
     Each figure's save file is named as such:
@@ -256,11 +267,11 @@ def save_plots(*args, fig=None, xy=None, logged=None) -> None:
     value of `xy`, and figure creation time. 
 
     Args:
-        figure (Matplotlib figure): the current figure object defined within plot_variables().
-        xy (tuple): tuple of tuples, each containing independent/dependent variable pairs.
-        logged (bool): determines creation of 'Saved Simple Plots' (False), or 'Saved Log Plots' folders (True).
+        *args (plot_variables() object): any number of plot_variables() calls assigned to variables.
     """
-    def save():
+    for fig_obj in args:
+        figure, xy, logged = fig_obj
+
         log_or_simple = "Log" if logged else "Simple"
         default_check = "Default" if xy == var_combinations([4, 3, 1]) else log_or_simple
         len_if_custom = str(len(xy)) + " " if xy != var_combinations([4, 3, 1]) else ""
@@ -288,13 +299,6 @@ def save_plots(*args, fig=None, xy=None, logged=None) -> None:
                 f'- {default_check + " " + log_or_simple if xy == var_combinations([4, 3, 1]) else default_check}'
                 f' Plot{is_len_plural} saved to {os.path.join(os.getcwd(), f"Saved {log_or_simple} Plots")}\n'
                 )
-    if args:
-        for fig in args:
-            figure, xy, logged = fig
-            save()
-    else:
-        figure, xy, logged = fig, xy, logged
-        save()
     
 
 def delete_folder(logged=False) -> None:
@@ -314,5 +318,4 @@ def delete_folder(logged=False) -> None:
             )
 
 if __name__ == '__main__':
-    plot_variables()
-    # plot_regression()
+    plot_variables(show=True)
