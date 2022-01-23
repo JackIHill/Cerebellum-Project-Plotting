@@ -36,19 +36,19 @@ except FileNotFoundError:
 
 class Scatter():
    
-    DEFAULT_COLORS = {
+    ORIGINAL_COLORS = {
                 'Hominidae': '#7f48b5',
                 'Hylobatidae': '#c195ed',
                 'Cercopithecidae': '#f0bb3e',
                 'Platyrrhini': '#f2e3bd'
                 } 
-    new_defaults = DEFAULT_COLORS.copy()
-    # TODO: use tuple to constrain mutation of _instances list.
-    _instances = []
+    new_def_colors = ORIGINAL_COLORS.copy()
+    # TODO: use tuple to constrain external mutation of _instances list.
+    __instances = []
 
-    def __init__(self, xy=None, colors=None, *, logged=False, fig_width=None, grid=None, **kwargs) -> None:
+    def __init__(self, xy=None, colors=None, *, logged=False, grid=None, **kwargs) -> None:
         # TODO: all() probably more suitable for int validator. 
-        Scatter._instances.append(self)
+        Scatter.__instances.append(self)
         if xy is None:
             xy = Scatter.var_combinations([4, 3, 1])
         elif any(isinstance(col_index, (int)) for col_index in xy):
@@ -56,46 +56,44 @@ class Scatter():
         self.xy = xy
 
         if colors is None:
-            colors = Scatter.new_defaults
+            colors = Scatter.new_def_colors
         else:
-            def_copy = Scatter.new_defaults.copy()
+            def_copy = Scatter.new_def_colors.copy()
             def_copy.update(colors)
             colors = def_copy
         self.colors = colors
 
         self.logged = logged
-        self.edgecolor = kwargs.pop('edgecolor', 'k')
-        self.marker = kwargs.pop('marker', 'o')
-        self._fig_width = fig_width
+        self.edgecolor = kwargs.pop('edgecolor', 'k') 
+        self.marker = kwargs.pop('marker', 'o') 
+        self._figsize = None
         self._grid = grid
         self.kwargs = kwargs
 
-
     @property
-    def fig_width(self):
-        """Get and set width of subplot figure. By default, fig_width depends on the number of xy pairs."""
-        if self._fig_width is None:
-            left_margin = 2.5
+    def figsize(self):
+        """width, height of subplot figure in inches. default fig_width depends on the number of xy pairs."""
+        if self._figsize is None:
+            fig_height = 4
             if len(self.xy) == 1:
-                category_size = 0.1
-                right_margin = 2.5
+                fig_width = 5.1
             elif len(self.xy) == 2:
-                category_size = 1.5
-                right_margin = 3.5
-            elif len(self.xy) >= 3:
-                category_size = 2
-                right_margin = 5
-
-            self._fig_width = left_margin + right_margin + len(self.xy) * category_size
-        return self._fig_width
-        
-    @fig_width.setter
-    def fig_width(self, fig_width):
-        self._fig_width = fig_width
+                fig_width = 9
+            elif len(self.xy) == 3:
+                fig_width = 13.5
+            else:
+                fig_width = 13.5
+                fig_height = 8
+    
+        return fig_width, fig_height
+    
+    @figsize.setter
+    def figsize(self, width_height):
+        self._figsize = width_height
 
     @property
     def grid(self):
-        """Get rows and columns of subplot figure. By default, automatically scales with the number of xy pairs."""
+        """Number of rows and columns of subplot figure. By default, automatically scales with the number of xy pairs."""
         if self._grid is None:
             if len(self.xy) <= 3:
                 num_rows = 1   
@@ -112,7 +110,7 @@ class Scatter():
         self._grid = rows_cols
     
     def display(self):
-        fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=(self.fig_width, 4), squeeze=False)
+        fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=(self.figsize), squeeze=False)
         axs = axs.flatten()
 
         for ax_n, (x, y) in enumerate(self.xy):
@@ -219,31 +217,36 @@ class Scatter():
 
     @classmethod
     def display_all(cls):
-        for instance in cls._instances:
+        for instance in cls.__instances:
             Scatter.display(instance)
             plt.show()
 
     @classmethod
-    def set_colors(cls, new_colors: dict[str, str]) -> dict[str, str]:
+    def set_colors(cls, new_colors: dict[str, str] = None, *, originals=False) -> dict[str, str]:
         """Assign custom default species-color map for visualisation. Return new default color map.
 
         Args:
             new_colors (dict of str:str, optional): species:color dictionary where valid species names are:
                 'Hominidae', 'Hylobatidae', 'Cercopithecidae' or 'Platyrrhini' and valid colors are matplotlib
-                named colors or hex color codes. Set `new_colors` to DEFAULT_COLORS (after setting new_defauls)
+                named colors or hex color codes. Set `new_colors` to ORIGINAL_COLORS (after setting new_defauls)
                 to revert color map to original default values. 
                 
         Returns:
-            new_defaults (dict of str: str): default_colors dict merged with values from new_colors. 
+            new_def_colors (dict of str: str): ORIGINAL_COLORS dict merged with values from new_colors. 
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
-        cls.new_defaults.update(new_colors)
-        return cls.new_defaults
+        if originals:
+            cls.new_def_colors = Scatter.ORIGINAL_COLORS
+        elif new_colors:
+            cls.new_def_colors.update(new_colors)
+        
+        return cls.new_def_colors
+
     
     @classmethod
     def current_def_colors(cls):
-        print(cls.new_defaults)
+        print(cls.new_def_colors)
 
     @staticmethod
     def save_plots(*args) -> None:
