@@ -45,30 +45,44 @@ class Scatter():
     new_def_colors = ORIGINAL_COLORS.copy()
     # TODO: use tuple to constrain external mutation of _instances list.
     __instances = []
-
+    
     def __init__(self, xy=None, colors=None, *, logged=False, grid=None, **kwargs) -> None:
-        # TODO: all() probably more suitable for int validator. 
+        self.xy = xy
+        self.colors = colors
+        self.logged = logged
+        self._figsize = None # bite the bullet and allow in class call?
+        self._grid = grid
+        self.edgecolor = kwargs.pop('edgecolor', 'k') 
+        self.marker = kwargs.pop('marker', 'o')
+        self.kwargs = kwargs
+
         Scatter.__instances.append(self)
+    
+    @property
+    def xy(self):
+        return self._xy
+
+    @xy.setter
+    def xy(self, xy):
         if xy is None:
             xy = Scatter.var_combinations([4, 3, 1])
-        elif any(isinstance(col_index, (int)) for col_index in xy):
+        elif all(isinstance(col_index, (int)) for col_index in xy):
             xy = Scatter.var_combinations(xy)
-        self.xy = xy
+        self._xy = xy
 
+    @property
+    def colors(self):
+        return self._colors
+    
+    @colors.setter
+    def colors(self, colors):
         if colors is None:
             colors = Scatter.new_def_colors
         else:
             def_copy = Scatter.new_def_colors.copy()
             def_copy.update(colors)
             colors = def_copy
-        self.colors = colors
-
-        self.logged = logged
-        self.edgecolor = kwargs.pop('edgecolor', 'k') 
-        self.marker = kwargs.pop('marker', 'o') 
-        self._figsize = None
-        self._grid = grid
-        self.kwargs = kwargs
+        self._colors = colors
 
     @property
     def figsize(self):
@@ -84,16 +98,19 @@ class Scatter():
             else:
                 fig_width = 13.5
                 fig_height = 8
-    
-        return fig_width, fig_height
+
+            self._figsize = fig_width, fig_height
+        return self._figsize
     
     @figsize.setter
     def figsize(self, width_height):
         self._figsize = width_height
-
+        
     @property
     def grid(self):
-        """Number of rows and columns of subplot figure. By default, automatically scales with the number of xy pairs."""
+        """Tuple of number of rows and columns of subplot figure. By default, automatically scales with the
+        number of xy pairs.
+        """
         if self._grid is None:
             if len(self.xy) <= 3:
                 num_rows = 1   
@@ -107,68 +124,13 @@ class Scatter():
     
     @grid.setter
     def grid(self, rows_cols):
+        if not all(isinstance(coord, int) for coord in rows_cols):
+            raise TypeError('All grid row and column values should be integers.')
+        if rows_cols[0] * rows_cols[1] < len(self.xy):
+            raise ValueError('All plots must be able to fit within the dimensions of the grid.')
+
         self._grid = rows_cols
     
-    def display(self):
-        fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=(self.figsize), squeeze=False)
-        axs = axs.flatten()
-
-        for ax_n, (x, y) in enumerate(self.xy):
-            axs[ax_n].scatter(
-                data[x], data[y],
-                c=data.Taxon.map(self.colors),
-                edgecolor=self.edgecolor, marker=self.marker, **self.kwargs
-                )
-        
-            handles = [
-                Line2D([0], [0],
-                color='w', marker=self.marker, markerfacecolor=color,
-                markeredgecolor=self.edgecolor, markeredgewidth='0.5',
-                markersize=4, label=species,
-                ) for species, color in self.colors.items()
-                ]
-
-            ax_legend = axs[ax_n].legend(
-                title='Taxon',
-                title_fontsize='9',
-                handles=handles,
-                loc='upper left',
-                fontsize=10
-                )
-            ax_legend.get_frame().set_color('white')
-
-            axs[ax_n].set(
-                    title=f'{"Logged " if self.logged else ""}Primate {self.xy[ax_n][0]} against\n{self.xy[ax_n][1]}',
-                    xlabel=f'{"Log " if self.logged else ""}{self.xy[ax_n][0]}',
-                    ylabel=f'{"Log " if self.logged else ""}{self.xy[ax_n][1]}'
-                    )
-        
-            if self.logged:
-                axs[ax_n].set_xscale('symlog')
-                axs[ax_n].get_xaxis().set_major_formatter(tk.ScalarFormatter())
-
-                axs[ax_n].set_yscale('symlog')   
-                axs[ax_n].get_yaxis().set_major_formatter(tk.ScalarFormatter())
-                axs[ax_n].set_yticks([10, 25, 50, 100, 250, 500, 1000])
-
-                # These xy values need custom xticks to better represent the range of values.
-                tick_list = [5, 10, 25, 50, 100, 200, 400, 1000]
-                if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
-                    axs[ax_n].set_xticks(tick_list)
-                else:
-                    axs[ax_n].set_xticks(tick_list[:-1])
-
-                # Remove minor ticks for logged plots. 
-                plt.rcParams['xtick.minor.size'] = 0
-                plt.rcParams['ytick.minor.size'] = 0
-        
-        fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-        plt.show()
-
-    # def save():
-    #     plot = fig, xy, logged
-    #     save_plots(plot)
-
     @staticmethod
     def var_combinations(cols: list[int]) -> tuple[tuple[str, str], ...]:
         """Get all pairwise combinations (not repeated) for a list of columns. Return nested tuples containing
@@ -215,14 +177,83 @@ class Scatter():
 
         return var_combinations
 
+
+    def plot(self, title=None, title_size=16, legend_title='Taxon', legend_loc='upper left', **kwargs):
+        # TODO: docstring
+        fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=(self.figsize), squeeze=False)
+        axs = axs.flatten()
+
+        for ax_n, (x, y) in enumerate(self.xy):
+            axs[ax_n].scatter(
+                data[x], data[y],
+                c=data.Taxon.map(self.colors),
+                edgecolor=self.edgecolor, marker=self.marker, **self.kwargs
+                )
+        
+            handles = [
+                Line2D([0], [0],
+                color='w', marker=self.marker, markerfacecolor=color,
+                markeredgecolor=self.edgecolor, markeredgewidth='0.5',
+                markersize=4, label=species,
+                ) for species, color in self.colors.items()
+                ]
+
+            ax_legend = axs[ax_n].legend(
+                title=legend_title,
+                handles=handles,
+                loc=legend_loc,
+                **kwargs
+                )
+            ax_legend.get_frame().set_color('white')
+
+            axs[ax_n].set(
+                    title=f'{"Logged " if self.logged else ""}Primate {self.xy[ax_n][0]} against\n{self.xy[ax_n][1]}',
+                    xlabel=f'{"Log " if self.logged else ""}{self.xy[ax_n][0]}',
+                    ylabel=f'{"Log " if self.logged else ""}{self.xy[ax_n][1]}'
+                    )
+        
+            if self.logged:
+                axs[ax_n].set_xscale('symlog')
+                axs[ax_n].get_xaxis().set_major_formatter(tk.ScalarFormatter())
+
+                axs[ax_n].set_yscale('symlog')   
+                axs[ax_n].get_yaxis().set_major_formatter(tk.ScalarFormatter())
+                axs[ax_n].set_yticks([10, 25, 50, 100, 250, 500, 1000])
+
+                # These xy values need custom xticks to better represent the range of values.
+                tick_list = [5, 10, 25, 50, 100, 200, 400, 1000]
+                if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
+                    axs[ax_n].set_xticks(tick_list)
+                else:
+                    axs[ax_n].set_xticks(tick_list[:-1])
+
+                # Remove minor ticks for logged plots. 
+                plt.rcParams['xtick.minor.size'] = 0
+                plt.rcParams['ytick.minor.size'] = 0
+
+        fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+
+        if title:
+            plt.suptitle(title, size=title_size, weight='semibold', x=0.515)
+            if self._grid[0] == 1:
+                fig.subplots_adjust(top=0.8)
+            else:
+                fig.subplots_adjust(top=0.88)
+
+        return fig
+
+    def display(self, **kwargs):
+        Scatter.plot(self, **kwargs)
+        plt.show()
+
     @classmethod
     def display_all(cls):
         for instance in cls.__instances:
-            Scatter.display(instance)
-            plt.show()
+            Scatter.plot(instance)
+        plt.show()
 
     @classmethod
-    def set_colors(cls, new_colors: dict[str, str] = None, *, originals=False) -> dict[str, str]:
+    def set_default_colors(cls, new_colors: dict[str, str] = None, *, originals=False) -> dict[str, str]:
         """Assign custom default species-color map for visualisation. Return new default color map.
 
         Args:
@@ -243,25 +274,35 @@ class Scatter():
         
         return cls.new_def_colors
 
-    
     @classmethod
     def current_def_colors(cls):
         print(cls.new_def_colors)
 
+    # TODO: merge into save_plots to use just one method?
+    def save(self):
+        Scatter.save_plots(self)
+
     @staticmethod
-    def save_plots(*args) -> None:
+    def save_plots(*args, every=False) -> None:
         """Saves simple/log plots to respective folders.
 
         Each figure's save file is named as such:
         '(number of plots in figure) Simple Plot(s) - #(number denoting order in which file was saved).
 
         SIMPLE_PLOT_DETAILS.txt or LOG_PLOT_DETAILS.txt files also created containing number of plots, save file order, 
-        value of `self.xy`, and figure creation time. 
+        value of `xy`, and time at figure creation. 
 
         Args:
             *args (plot_variables() object): any number of plot_variables() calls assigned to variables.
         """
-        for figure in args:
+        if every:
+            figures = [figure for figure in Scatter.__instances]
+        elif args: 
+            figures = args
+
+        for figure in figures:
+            fig = figure.plot()
+
             log_or_simple = "Log" if figure.logged else "Simple"
             default_check = "Default" if figure.xy == Scatter.var_combinations([4, 3, 1]) else log_or_simple
             len_if_custom = str(len(figure.xy)) + " " if figure.xy != Scatter.var_combinations([4, 3, 1]) else ""
@@ -274,7 +315,7 @@ class Scatter():
             png_id = 1
             while os.path.exists(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png'):
                 png_id += 1
-            figure.fig.savefig(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png')
+            fig.savefig(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png')
 
             var_list = "\n".join(str(x) for x in figure.xy)
             with open(f'Saved {log_or_simple} Plots/{log_or_simple.upper()}_PLOT_DETAILS.txt', 'a') as save_details:
