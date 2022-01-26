@@ -6,6 +6,7 @@ Create simple and/or logged scatter plots for cerebellum and cerebrum morphology
 import os
 import sys
 import shutil
+import warnings
 from itertools import combinations
 from datetime import datetime
 
@@ -35,7 +36,7 @@ except FileNotFoundError:
     sys.exit()
 
 class Scatter():
-   
+
     ORIGINAL_COLORS = {
                 'Hominidae': '#7f48b5',
                 'Hylobatidae': '#c195ed',
@@ -43,20 +44,25 @@ class Scatter():
                 'Platyrrhini': '#f2e3bd'
                 } 
     new_def_colors = ORIGINAL_COLORS.copy()
-    # TODO: use tuple to constrain external mutation of _instances list.
+
     __instances = []
     
-    def __init__(self, xy=None, colors=None, *, logged=False, grid=None, **kwargs) -> None:
+    def __init__(
+        self, xy=None, colors=None, logged=False, *, figsize=None, grid=None, edgecolor='k', marker='o', 
+        title=None, legend_loc='upper left'
+        ):
         self.xy = xy
         self.colors = colors
         self.logged = logged
-        self._figsize = None # bite the bullet and allow in class call?
+        self._figsize = figsize
         self._grid = grid
-        self.edgecolor = kwargs.pop('edgecolor', 'k') 
-        self.marker = kwargs.pop('marker', 'o')
-        self.kwargs = kwargs
+        self.edgecolor = edgecolor
+        self.marker = marker
+        self.title = title
+        self.legend_loc = legend_loc
 
         Scatter.__instances.append(self)
+
     
     @property
     def xy(self):
@@ -156,12 +162,17 @@ class Scatter():
             
             if len(valid_cols) >= 2:
                 if invalid_cols:
-                    print(
-                        f'The following invalid indices were passed to `xy`: {invalid_cols}.\n'
-                        f'Combinations were therefore made from the following indices only: {valid_cols}.'
-                        )
+                    warnings.warn(
+                        f'The following invalid indices were passed to `xy`: {list(set(invalid_cols))}.'
+                        f' Combinations were therefore made from the following indices only: {list(set(valid_cols))}.')
 
-                var_combinations = tuple(combinations(data.columns[valid_cols], 2))
+                if len(set(valid_cols)) != len(valid_cols):
+                    dupes = list(set([x for x in valid_cols if valid_cols.count(x) > 1]))
+                    warnings.warn(
+                        f'Duplicates of the following valid column indices were ignored to avoid plotting them'
+                        f' against one another: {dupes}.\n')
+                
+                var_combinations = tuple(combinations(data.columns[list(set(valid_cols))], 2))
             else:
                 raise AttributeError
 
@@ -176,9 +187,8 @@ class Scatter():
             var_combinations = tuple(combinations(data.columns[[4, 3, 1]], 2))
 
         return var_combinations
-
-
-    def plot(self, title=None, title_size=16, legend_title='Taxon', legend_loc='upper left', **kwargs):
+        
+    def plot(self, **kwargs):
         # TODO: docstring
         fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=(self.figsize), squeeze=False)
         axs = axs.flatten()
@@ -187,7 +197,7 @@ class Scatter():
             axs[ax_n].scatter(
                 data[x], data[y],
                 c=data.Taxon.map(self.colors),
-                edgecolor=self.edgecolor, marker=self.marker, **self.kwargs
+                edgecolor=self.edgecolor, marker=self.marker, **kwargs
                 )
         
             handles = [
@@ -199,10 +209,9 @@ class Scatter():
                 ]
 
             ax_legend = axs[ax_n].legend(
-                title=legend_title,
-                handles=handles,
-                loc=legend_loc,
-                **kwargs
+                title='Taxon',
+                loc=self.legend_loc,
+                handles=handles
                 )
             ax_legend.get_frame().set_color('white')
 
@@ -233,8 +242,8 @@ class Scatter():
 
         fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-        if title:
-            plt.suptitle(title, size=title_size, weight='semibold', x=0.515)
+        if self.title:
+            plt.suptitle(self.title, size=16, weight='semibold', x=0.52)
             if self._grid[0] == 1:
                 fig.subplots_adjust(top=0.8)
             else:
@@ -278,12 +287,11 @@ class Scatter():
     def current_def_colors(cls):
         print(cls.new_def_colors)
 
-    # TODO: merge into save_plots to use just one method?
     def save(self):
         Scatter.save_plots(self)
 
-    @staticmethod
-    def save_plots(*args, every=False) -> None:
+    @classmethod
+    def save_plots(cls, *args, every=False) -> None:
         """Saves simple/log plots to respective folders.
 
         Each figure's save file is named as such:
@@ -296,13 +304,20 @@ class Scatter():
             *args (plot_variables() object): any number of plot_variables() calls assigned to variables.
         """
         if every:
-            figures = [figure for figure in Scatter.__instances]
-        elif args: 
+            figures = [figure for figure in cls.__instances]
+        else:
+            if not args:
+                raise ValueError('save_plots() expected at least 1 figure object argument (0 given)')
+            if not all(isinstance(figure, (Scatter, Regression)) for figure in args):
+                raise TypeError(
+                    f'save_plots expected an instance of Scatter() or Regression().'
+                    f'If not saving every plot, ensure that all args are an instance of Scatter() or Regression().'
+                    )
             figures = args
 
         for figure in figures:
             fig = figure.plot()
-
+            
             log_or_simple = "Log" if figure.logged else "Simple"
             default_check = "Default" if figure.xy == Scatter.var_combinations([4, 3, 1]) else log_or_simple
             len_if_custom = str(len(figure.xy)) + " " if figure.xy != Scatter.var_combinations([4, 3, 1]) else ""
@@ -330,8 +345,8 @@ class Scatter():
                     f'- {default_check + " " + log_or_simple if figure.xy == Scatter.var_combinations([4, 3, 1]) else default_check}'
                     f' Plot{is_len_plural} saved to {os.path.join(os.getcwd(), f"Saved {log_or_simple} Plots")}\n'
                     )
-        
 
+    @staticmethod    
     def delete_folder(logged=False) -> None:
         """Deletes simple or log save folder depending on if logged=True is passed as an argument.
 
@@ -347,23 +362,3 @@ class Scatter():
                 f"No '{os.path.basename(os.path.normpath(folder))}' folder exists in the current directory, "
                 f"and so could not be deleted."
                 )
-
-# class Regression(Scatter):
-#     def plot_regression():
-#             """Plots linear regression line for the volume-against-volume plot."""
-#             plot_variables((('Cerebrum Volume', 'Cerebellum Volume'),))
-#             data_2 = data[['Cerebellum Volume', 'Cerebrum Volume']].copy(deep=False)
-
-#             data_2.dropna(inplace=True)
-
-#             predict = 'Cerebellum Volume'
-#             x = np.array(data_2.drop([predict], axis=1))
-#             y = np.array(data_2[predict])
-
-#             model = np.polyfit(x[:, 0], y, 1)
-#             predict = np.poly1d(model)
-
-#             x_lin_reg = range(0, 1600)
-#             y_lin_reg = predict(x_lin_reg)
-#             plt.plot(x_lin_reg, y_lin_reg, c='k')
-
