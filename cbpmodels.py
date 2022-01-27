@@ -3,10 +3,10 @@
 Create simple and/or logged scatter plots for cerebellum and cerebrum morphology in primates.
 """
 
-import os
 import sys
 import shutil
 import warnings
+from pathlib import Path
 from itertools import combinations
 from datetime import datetime
 
@@ -62,7 +62,6 @@ class Scatter():
         self.legend_loc = legend_loc
 
         Scatter.__instances.append(self)
-
     
     @property
     def xy(self):
@@ -323,12 +322,12 @@ class Scatter():
             len_if_custom = str(len(figure.xy)) + " " if figure.xy != Scatter.var_combinations([4, 3, 1]) else ""
             is_len_plural = "s" if len(figure.xy) > 1 else ""
             
-            save_folder = os.path.join(os.getcwd(), f'Saved {log_or_simple} Plots')
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+            save_folder = Path(Path.cwd(), f'Saved {log_or_simple} Plots')
+            if not save_folder.is_dir():
+                Path(save_folder).mkdir(parents=True)
 
             png_id = 1
-            while os.path.exists(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png'):
+            while Path(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png').exists():
                 png_id += 1
             fig.savefig(f'Saved {log_or_simple} Plots/{len_if_custom}{default_check} Plot{is_len_plural} - #{png_id:d}.png')
 
@@ -343,7 +342,7 @@ class Scatter():
                 
                 print(
                     f'- {default_check + " " + log_or_simple if figure.xy == Scatter.var_combinations([4, 3, 1]) else default_check}'
-                    f' Plot{is_len_plural} saved to {os.path.join(os.getcwd(), f"Saved {log_or_simple} Plots")}\n'
+                    f' Plot{is_len_plural} saved to {save_folder}\n'
                     )
 
     @staticmethod    
@@ -353,12 +352,12 @@ class Scatter():
         Args:
             logged (bool): determines deletion of simple plot (False), or log plot save folders (True).
         """
-        folder = os.path.join(os.getcwd(), f'Saved {"Log" if logged else "Simple"} Plots')
+        folder = Path(Path.cwd(), f'Saved {"Log" if logged else "Simple"} Plots')
 
         try:
             shutil.rmtree(folder)
         except FileNotFoundError:
             print(
-                f"No '{os.path.basename(os.path.normpath(folder))}' folder exists in the current directory, "
+                f"No '{folder.name}' folder exists in the current directory, "
                 f"and so could not be deleted."
                 )
