@@ -3,41 +3,18 @@ Create plots for cerebellar and cerebral morphology in a range of primates.
 Run alongside csv file containing brain morphological data from a range of studies.
 CSV will be updated in the future as the project progresses.
 
-- [Usage](#usage)
 - [About the Cerebellum Project](#about-the-cerebellum-project)
 
-## Setup
-Change directories to the project directory:
-```
-cd \path\to\Cerebellum-Project-Plotting
-```
-Create/activate virtual environment:
-
-```
-pip install virtualenv
-virtualenv my_env
-
-source \my_env\scripts\activate
-```
-Install requirements:
-```
-pip install -r requirements.txt
-```
-Import module:
-```python
-import cbpmodels as cbp
-```
-
-## <ins>Usage<ins>
-
-```plot_variables()```: Plots brain morphology variables with a legend and data point colours mapped to taxa.
+## Usage
+    
+```plot_variables()``` produces plots with a legend and data point colours mapped to taxa.
 <br>
 <br>
 Calling ```plot_variables()``` without specifying a) a tuple of tuples containing indepdent and dependent variable pairs or b) a list of .csv column indices, will create a default figure containing plots derived from pairwise, non-repeated combinations of csv columns 4, 3 and 1 (ordered for aesthetic purposes) - those with sufficient data points. Thus:
 <br>
 
 ```python
-cbp.plot_variables(show=True)
+plot_variables(show=True)
 ```
 Produces: 
 
@@ -48,7 +25,7 @@ Produces:
 Specifying n number of variable combination tuples will plot n number of plots on the figure. ```logged=True``` can also be passed, to log every plot in the figure. Thus:
 
 ```python
-cbp.plot_variables(
+plot_variables(
     (('Cerebrum Volume', 'Cerebellum Volume'),),  
     logged=True, show=True
     )  
@@ -63,7 +40,7 @@ Produces:
 Specify a list of column indices to plot all non-repeated combinations of the variables those columns represent.
 
 ```python
-cbp.plot_variables([1, 2, 3, 4], show=True)
+plot_variables([1, 2, 3, 4], show=True)
 ```
 
 will therefore produce 6 plots; variable combinations:
@@ -78,51 +55,35 @@ column index 4 = Cerebrum Volume <br>
 
 <br>
 
-Manually change the color map for the current plot using the ```colors``` keyword. Pass a dictionary containing a taxon name key and a color value, where valid taxa are 'Hominidae', 'Hylobatidae', 'Cercopithecidae' and 'Platyrrhini' and valid colors are [matplotlib named colors](https://matplotlib.org/stable/gallery/color/named_colors.html) or hex color codes. Thus:
+Manually change the color map for the current plot using the ```colors``` keyword. Pass a dictionary containing a taxon name key and a color value, where valid taxa are 'Hominidae', 'Hylobatidae', 'Cercopithecidae' and 'Platyrrhini' and valid colors are matplotlib named colors (https://matplotlib.org/stable/gallery/color/named_colors.html) or hex color codes. Thus:
 
 ```python
-cbp.plot_variables(colors={'Hominidae':'#5AEC51'}, show=True)
+plot_variables(colors={'Hominidae':'blue'}, show=True)
 ``` 
 
 will modify the color map for the taxon Hominidae, leaving all other taxon color maps as their default, as such:
 
-![lime_color_plot](https://user-images.githubusercontent.com/73407206/149395907-5c495800-eb1b-4cb8-ae66-313596effa05.png)
-
-<br>
+![default_plot_colored_diff](https://user-images.githubusercontent.com/73407206/148591146-3494d9ef-c56a-4fcd-90a9-a2fac7fb887f.png)
 
 To set custom color maps for any or all taxon for all subsequent plots, pass a dictionary of 'taxon_name':'color' to ```set_colors()```:
 
+<br>
+
 ```python
-cbp.plot_variables(show=True) # plot all taxon with module-defined default color map
+plot_variables(show=True) # plot all taxon with module-defined default color map
 
-cbp.plot_variables(colors={'Hylobatidae':'blue'}, show=True) # change plot's Hylobatidae colors, other taxa have default colors
+plot_variables(colors={'Hylobatidae':'blue'}, show=True) # change plot's Hylobatidae colors, other taxa have default colors
 
-cbp.set_colors({'Hominidae':'red'}) # set default color for Hominidae plot points, for all subsequent plots. 
+set_colors({'Hominidae':'red'}) # set default color for Hominidae plot points, for all subsequent plots. 
     
-cbp.plot_variables(show=True) # default color for Hominidae is red, all other colors are original (Hylobatidae no longer blue). 
+plot_variables(show=True) # default color for Hominidae is red, all other colors are original (Hylobatidae no longer blue). 
 
-cbp.set_colors(cbp.DEFAULT_COLORS) # set default colors to module-defined default color map
+set_colors(DEFAULT_COLORS) # set default colors to module-defined default color map
 ```
 
 <br>
 
-```plot_variables()``` also takes arbitrary keyword arguments from [matplotlib.pyplot.scatter](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html)
-
-<br>
-
-Passing ```save=True``` to ```plot_variables()``` will create a new directory inside the current directory, and store the current figure in 'Saved Simple Plots' or 'Saved Log Plots' depending on if ```logged``` is True. SIMPLE / LOG_PLOT_DETAILS.txt files will be created simultaneously, providing information for each figure on the number of plots, save file order, variables used for each plot, and the time at figure creation. 
-
-<br>
-
-You can save a 'batch' of figures using ```save_plots(fig1, fig2, ...)``` after assigning objects to calls of ```plot_variables()```, like so:
-
-```
-plot1 = cbp.plot_variables([['Cerebrum Volume', 'Cerebellum Volume'],])
-plot2 = cbp.plot_variables([1, 2, 3, 4])
-
-cbp.save_plots(plot1, plot2)
-```
-
+Passing ```save=True``` Will create a new directory inside the current directory, and store the current figure in 'Saved Simple Plots' or 'Saved Log Plots' depending on if ```logged``` is True. SIMPLE / LOG_PLOT_DETAILS.txt files will be created simultaneously, providing information for each figure on the number of plots, save file order, variables used for each plot, and the time at figure creation. 
 
 To easily delete these folders, ```delete_folders(logged=True)``` for the 'Saved Log Plots' directory, and ```delete_folders()``` for the 'Saved Simple Plots' directory.
 
