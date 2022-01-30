@@ -5,6 +5,7 @@ Classes for creating simple Scatter or Regression plots from cerebellum morpholo
 
 import sys
 import shutil
+import logging
 import warnings
 from pathlib import Path
 from itertools import combinations
@@ -15,6 +16,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
+
+logger = logging.getLogger('cbpmodels.py')
 
 try:
     data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
@@ -111,13 +114,13 @@ class Scatter():
         return self._xy
 
     @xy.setter
-    def xy(self, cols_or_pairs):
-        if cols_or_pairs is None:
+    def xy(self, cols_or_str):
+        if cols_or_str is None:
             xy = Scatter.xy_pairs(Scatter.def_pairs)
-        elif all(isinstance(col_index, (int)) for col_index in cols_or_pairs):
-            xy = Scatter.xy_pairs(cols_or_pairs)
+        elif any(isinstance(col_idx, int) for col_idx in cols_or_str):
+            xy = Scatter.xy_pairs(cols_or_str)
         else:
-            xy = cols_or_pairs
+            xy = cols_or_str
         self._xy = xy
 
     @property
@@ -227,17 +230,24 @@ class Scatter():
             xy_pairs: tuple of tuples, each containing independent/dependent variable pairs.
         
         Raises:
+            TypeError: if `cols` contains non-digit values.
             ValueError: if the number of valid cols in `cols` is lower than 2 (the required minimum for making
             pairwise combinations). 
         """
+        if all(str(c).isdigit() for c in cols):
+            cols = [int(c) for c in cols]
+        else:
+            logger.debug(f'\nnon-int was passed to cols: {cols}')
+            raise TypeError('xy_pairs() does not accept values of type float or alpha characters.\n')
+            
+        invalid_cols = []
+        for col_idx in cols:
+            if col_idx >= len(data.columns) or (data[data.columns[col_idx]].dtype != ('float64' or 'int64')):
+                invalid_cols.append(col_idx)
+    
+        valid_cols = [col_idx for col_idx in cols if col_idx not in invalid_cols]
+
         try:
-            invalid_cols = []
-            for col_index in cols:
-                if col_index >= len(data.columns) or (data[data.columns[col_index]].dtype != ('float64' or 'int64')):
-                    invalid_cols.append(col_index)
-
-            valid_cols = [col_index for col_index in cols if col_index not in invalid_cols]
-
             if len(valid_cols) >= 2:
                 if invalid_cols:
                     warnings.warn(
@@ -251,7 +261,8 @@ class Scatter():
                         f'Duplicates of the following valid column indices were ignored to avoid plotting them'
                         f' against one another: {dupes}.\n'
                         )
-                
+
+                # dict.fromkeys retains order of col indices.
                 xy_pairs = tuple(combinations(data.columns[list(dict.fromkeys(valid_cols))], 2))
             else:
                 raise ValueError
@@ -264,8 +275,8 @@ class Scatter():
                 f' Please ensure the list has at least 2 valid indices, where such indices refer to columns'
                 f' containing floating-point numbers or integers.\n'
                 )
-            xy_pairs = tuple(combinations(data.columns[Scatter.def_pairs], 2))
-
+            xy_pairs = tuple(combinations(data.columns[list(dict.fromkeys(Scatter.def_pairs))], 2))
+        
         return xy_pairs
         
     def plot(self, **kwargs):
@@ -353,7 +364,7 @@ class Scatter():
     def display_all(cls) -> None:
         """Plot and output instances of cbpmodels.Scatter to their own windows."""
         for instance in cls.__instances:
-            Scatter.plot(instance)
+            cls.plot(instance)
         plt.show()
 
     @classmethod
@@ -364,18 +375,29 @@ class Scatter():
             new_pairs (tuple[int], optional): tuple of integers representing column index values from .csv.
                 Defaults to None.
             originals (bool, optional): if True, sets Scatter.def_pairs to it's predetermined values. Defaults to False.
+        
+        Raises:
+            TypeError: if `new_pairs` contains non-int values.
         """
         if originals is True:
             cls.def_pairs = (4, 3, 1)
         else:
-            cls.def_pairs = new_pairs
+            if all(isinstance(col_idx, int) for col_idx in new_pairs):
+                cls.def_pairs = tuple(new_pairs)
+            else:
+                raise TypeError(
+                    'Scatter.set_def_pairs() received invalid input. Only integers are valid, and so new default pairs'
+                    ' were not set.'
+                    )
+            
+        logger.info(f'\nset_def_pairs() called: new default column indices are {cls.def_pairs}.')
 
     @classmethod
     def get_def_pairs(cls) -> None:
-        """Prints current default tuple to be passed to Scatter.xy_pairs() for plotting without specifying
+        """Returns current default tuple to be passed to Scatter.xy_pairs() for plotting without specifying
         property `xy`.
         """
-        print(
+        return(
             f'Current default variable combinations are {cls.def_pairs}, equivalent to'
             f' {Scatter.xy_pairs(cls.def_pairs)} '
             )
@@ -403,12 +425,14 @@ class Scatter():
         elif new_colors:
             cls.new_def_colors.update(new_colors)
 
+        logger.info(f'\ndefault color map updated to:\n{cls.new_def_colors}\n')
+
     @classmethod
     def current_def_colors(cls) -> None:
-        """Prints current Scatter.new_def_colors dict to act as the default color map for all plots when property
+        """Returns current Scatter.new_def_colors dict to act as the default color map for all plots when property
         `colors` is not manually assigned.
         """
-        print(cls.new_def_colors)
+        return(cls.new_def_colors)
 
     def save(self) -> None:
         """Save instance of cbpmodels.Scatter instance using Scatter.save_plots()."""
@@ -427,11 +451,15 @@ class Scatter():
         Args:
             *args (cbpmodels.Scatter instance): any number of cbpmodels.Scatter instances.
             every (bool, optional): if True, save every object of cbpmodels.Scatter.
+        
+        Raises:
+            TypeError: if no objects are specified when `every` is False, or when objects passed to save_plots() are not
+                an instance of Scatter or Regression.
         """
         if every:
             figures = [figure for figure in cls.__instances]
         else:
-            if not args:
+            if len(args) == 0:
                 raise TypeError('save_plots() expected at least 1 figure object argument (0 given)')
             if not all(isinstance(figure, (Scatter, Regression)) for figure in args):
                 raise TypeError(
