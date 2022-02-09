@@ -3,13 +3,14 @@
 Classes for creating simple Scatter or Regression plots from cerebellum morphology data.
 """
 
-import sys
 import shutil
 import logging
 import warnings
+import math
 from pathlib import Path
 from itertools import combinations
 from datetime import datetime
+from functools import wraps
 
 import pandas as pd
 import numpy as np
@@ -19,32 +20,14 @@ from matplotlib.lines import Line2D
 
 logger = logging.getLogger('cbpmodels.py')
 
-try:
-    data = pd.read_csv('all_species_values.csv', na_values='', usecols=range(7))
-    data = data.dropna(how='all', axis='columns').drop(columns='Source')
-    data.rename(
-        columns={
-            'Species ': 'Species',
-            'CerebellumSurfaceArea': 'Cerebellum Surface Area',
-            'CerebrumSurfaceArea': 'Cerebrum Surface Area',
-            'CerebellumVolume ': 'Cerebellum Volume',
-            'CerebrumVolume': 'Cerebrum Volume'
-            }, inplace=True)
-
-except FileNotFoundError:
-    print(
-        "CSV not found. Please ensure you have the \'all_species_values.csv\' "
-        "in the same directory as this program."
-        )
-    sys.exit()
-
-class Scatter():
+class Scatter(object):
     """Class for creating fully-constructed scatter plots with matplotlib.pyplot as a basis, intended for use with the
     Cerebellum Project. Facilitates creation of mutliple plots at once, with autonomous axes label and legend creation.
     Also facilitates plotting of pairwise variable combinations. Includes methods for saving individual or
     multitudinal plots to their respective 'Logged' or 'Simple' save folders, containing save-details text files.
 
     Attributes:
+        data: dataframe. Ensure dataframe contains a 'Taxon' column.
         ORIGINAL_COLORS: default species:color map {'Hominidae': '#7f48b5', 'Hylobatidae': '#c195ed',
             'Cercopithecidae': '#f0bb3e', 'Platyrrhini': '#f2e3bd'}.
         new_def_colors: user-updated default species:color map. Defaults to copy of ORIGINAL_COLORS.
@@ -53,6 +36,7 @@ class Scatter():
             arguments.
         __instances: list of class instances, for use when displaying or saving all instances.
     """
+    data = pd.read_csv('all_species_values.csv')
 
     ORIGINAL_COLORS = {
                 'Hominidae': '#7f48b5',
@@ -121,7 +105,7 @@ class Scatter():
             xy = Scatter.xy_pairs(Scatter.def_pairs)
         else:
             try:
-                xy = [[var for var in tuples] for tuples in cols_or_str]
+                xy = [[str(var) for var in tuples] for tuples in cols_or_str]
             except TypeError:
                 xy = Scatter.xy_pairs(cols_or_str)
 
@@ -138,6 +122,9 @@ class Scatter():
 
         Returns:
             self._colors (dict of str:str): default or updated species:color map.
+        
+        Raises:
+            ValueError: if any of new_colors keys are invalid taxon names.
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
@@ -149,8 +136,13 @@ class Scatter():
             colors = Scatter.new_def_colors
         else:
             colors = Scatter.new_def_colors.copy()
-            colors.update(new_colors)
-
+            if new_colors.keys() <= colors.keys():
+                colors.update(new_colors)
+            else:
+                raise ValueError(
+                    'Invalid taxon-keys were passed to set_def_colors(). See all_species_values.csv'
+                    ' for valid taxon names.'
+                    )
         self._colors = colors
 
     @property
@@ -159,6 +151,9 @@ class Scatter():
         
         Args:
             width_height (tuple of float, float): width, height of subplot figure in inches.
+
+        Returns:
+            self.figsize (tuple of float, float), width, height of instance subplot figure in inches.
         
         Raises:
             ValueError: if height or width values are less than or equal to 0.
@@ -169,12 +164,8 @@ class Scatter():
     def figsize(self, width_height):
         if width_height is None:
             fig_height = 4
-            if len(self.xy) == 1:
-                fig_width = 5.1
-            elif len(self.xy) == 2:
-                fig_width = 9
-            elif len(self.xy) == 3:
-                fig_width = 13.5
+            if len(self.xy) <= 3:
+                fig_width = len(self.xy) * 4.5
             else:
                 fig_width = 13.5
                 fig_height = 8
@@ -194,7 +185,10 @@ class Scatter():
         number of plots).
 
         Args:
-            rows_cols (tuple of int, int): rows, cols of axes drawn on matplotlib.figure.Figure object.
+            rows_cols (tuple of int, int): number of rows, cols of axes drawn on matplotlib.figure.Figure object.
+
+        Returns:
+            self.grid (tuple of int, int): number of rows, cols of plot axes drawn on figure.
 
         Raises:
             ValueError: if rows and columns are unable to fit the minimum number of plots determined by property `xy`.
@@ -207,7 +201,7 @@ class Scatter():
             if len(self.xy) <= 3:
                 rows_cols = 1, len(self.xy)
             else:
-                rows_cols = 2, int(len(self.xy) // 1.66)
+                rows_cols = 2, math.ceil(len(self.xy) / 2)
 
         n_axes = rows_cols[0] * rows_cols[1]
         if n_axes < len(self.xy):
@@ -238,11 +232,11 @@ class Scatter():
             cols = [int(str(col_idx)) for col_idx in cols]
         except ValueError:
             logger.debug(f'\nValueError: non-int was passed to cols: {cols}')
-            raise ValueError('xy_pairs() does not accept float or alpha character values.\n') from None
+            raise ValueError('xy_pairs() does not accept floating-point or alpha character values.\n') from None
 
         invalid_cols = []    
         for col_idx in cols:
-            if col_idx >= len(data.columns) or (data[data.columns[col_idx]].dtype != ('float64' or 'int64')) :
+            if col_idx >= len(Scatter.data.columns) or (Scatter.data[Scatter.data.columns[col_idx]].dtype != ('float64' or 'int64')) :
                 invalid_cols.append(col_idx)
 
         valid_cols = [col_idx for col_idx in cols if col_idx not in invalid_cols]
@@ -263,7 +257,7 @@ class Scatter():
                         )
 
                 # dict.fromkeys retains order of col indices.
-                xy_pairs = tuple(combinations(data.columns[list(dict.fromkeys(valid_cols))], 2))
+                xy_pairs = tuple(combinations(Scatter.data.columns[list(dict.fromkeys(valid_cols))], 2))
             else:
                 raise ValueError
 
@@ -275,15 +269,11 @@ class Scatter():
                 f'Please ensure the list has at least 2 valid indices, where such indices refer to columns'
                 f' containing floating-point numbers or integers.\n'
                 )
-            xy_pairs = tuple(combinations(data.columns[list(dict.fromkeys(Scatter.def_pairs))], 2))
+            xy_pairs = tuple(combinations(Scatter.data.columns[list(dict.fromkeys(Scatter.def_pairs))], 2))
         
         return xy_pairs
 
     def emphasize(self, species, **kwargs):
-        self.emph_arg = species
-        self.emph_kwargs = kwargs
-
-    def emphasis_deco(func):
         """highlights the data points exclusive to `species_or_taxon`, by reducing the alpha value of all other 
         points to `alpha_value`, increasing marker size to `s`, and increasing line width to `linewidth`.
 
@@ -304,57 +294,68 @@ class Scatter():
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
-        def wrap(self, species_or_taxon, with_highlight=True, color=None, edgecolor=None,
-            alpha=0.2, s=None, linewidth=1.5, with_arrows=False, legend=True):
+        self.emph_arg = species
+        self.emph_kwargs = kwargs
 
+    def add_emphasis(func):
+        @wraps(func)
+        def wrapper(self, species_or_taxon, with_highlight=True, color=None, edgecolor=None,
+            alpha=0.2, s=None, linewidth=1.5, with_arrows=False, scientific_name=True, legend=True):
+            
             # get the higher class (Species or Taxon) for the lower class passed to `species_or_taxon`.
             # e.g. higher_class = 'Species' when `species_or_taxon` == 'Homo_sapiens'.
-            locate_higher_class = data.apply(lambda row: row[row == species_or_taxon], axis=1)
+            locate_higher_class = Scatter.data.apply(lambda row: row[row == species_or_taxon], axis=1)
             class_name = ''.join(item[0] for item in locate_higher_class.iteritems())
 
-            species_filt = data[class_name] == species_or_taxon
+            species_filt = Scatter.data[class_name] == species_or_taxon
 
             if color is None:
-                color = ''.join(data[species_filt].Taxon.map(self.colors).unique())
+                color = ''.join(Scatter.data[species_filt].Taxon.map(self.colors).unique())
             
             if edgecolor is None:
                 edgecolor = self.edgecolor
-
-            # ensure emphasised-Taxon plots update main legend created in plots(). 
+            
             if class_name == 'Taxon':
-                color_map = self.colors.copy()
-                color_map.update({species_or_taxon: color})     
-            else:
-                color_map = None
+                self.colors = {species_or_taxon: color}
 
+            if not with_highlight: 
+                alpha = 1
+                
             fig, axs = func(
-                self, color_map=color_map,
+                self,
                 emph_taxon=species_or_taxon, 
                 emph_edgecol=edgecolor, emph_edgewidth=linewidth,
                 alpha=alpha
                 )
 
             for ax_n, (x, y) in enumerate(self.xy):
+                # get data-points which correspond to `species_or_taxon` value.
+                species_x = Scatter.data.loc[species_filt, x]
+                species_y = Scatter.data.loc[species_filt, y]
+                
                 if with_highlight:
-                    species_x = data.loc[species_filt, x],
-                    species_y = data.loc[species_filt, y]
-
                     axs[ax_n].scatter(
                         species_x, species_y,
                         facecolors=color, edgecolors=edgecolor, marker=self.marker,
                         s=s, linewidth=linewidth, alpha=0.85)
 
-                    # handles for emphasized species legend.
-                    handles = [
-                        Line2D([0], [0],
-                        color='w', marker=self.marker, markerfacecolor=color,
-                        markeredgecolor=edgecolor, markersize=4,
-                        label=species_or_taxon.replace('_', ' ')
-                        )]
-
                     if legend and class_name != 'Taxon':
-                        ax_legend = axs[ax_n].legend(loc=(0.02, 0.55), handles=handles, handletextpad=0.1)
-                        ax_legend.get_frame().set_color('white')
+                        if scientific_name: 
+                            legend_label = species_or_taxon[0] + '. ' + species_or_taxon.split('_')[1]
+                        else:
+                            legend_label = species_or_taxon.replace('_', ' ')
+
+                        handles = [
+                            Line2D([0], [0],
+                            color='w', marker=self.marker, markerfacecolor=color,
+                            markeredgecolor=edgecolor, markersize=4,
+                            label=legend_label
+                            )]
+
+                        for xy_pair in zip(species_x, species_y):
+                            if not any(math.isnan(element) for element in xy_pair):
+                                emph_leg = axs[ax_n].legend(loc=(0.02, 0.55), handles=handles, handletextpad=0.1)
+                                emph_leg.get_frame().set_color('white')
 
                 if with_arrows:
                     xmin, xmax = axs[ax_n].get_xlim()
@@ -362,8 +363,7 @@ class Scatter():
 
                     x_range, y_range = (xmax - xmin),  (ymax - ymin)
 
-                    # get data-points which correspond to `species_or_taxon` value.
-                    for x, y in zip(data.loc[species_filt, x], data.loc[species_filt, y]):
+                    for x, y in zip(species_x, species_y):
                         # determine scaling behaviour of arrow-tail co-ordinates for logged or unlogged plots.
                         if self.logged:
                             modifier = 10, - (y_range * 0.02)
@@ -375,13 +375,12 @@ class Scatter():
                         axs[ax_n].annotate(          
                             "", xy=(x, y), xytext=(modifier),
                             arrowprops=dict(arrowstyle="->", shrinkB=5), textcoords=textcoords)
-
             return fig
-        wrap.unemphasized = func
-        return wrap
+        wrapper.unemphasized = func
+        return wrapper
 
-    @emphasis_deco
-    def plot(self, color_map=None, emph_taxon=None, emph_edgecol=None, emph_edgewidth=0.5, **kwargs):
+    @add_emphasis
+    def plot(self, emph_taxon=None, emph_edgecol=None, emph_edgewidth=0.5, **kwargs):
         """Plots variables on figure axes with color map, legend, handles matching data-point colors,
         and custom labelling depending on instance variable `logged`.
 
@@ -395,24 +394,22 @@ class Scatter():
         """
         fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=self.figsize, squeeze=False)
         axs = axs.flatten()
-        
-        if color_map is None:
-            color_map = self.colors
 
         for ax_n, (x, y) in enumerate(self.xy):
             axs[ax_n].scatter(
-                data[x], data[y],
-                c=data.Taxon.map(color_map),
+                Scatter.data[x], Scatter.data[y],
+                c=Scatter.data.Taxon.map(self.colors),
                 edgecolor=self.edgecolor, marker=self.marker, **kwargs
                 )
 
+            # handles for main legend. legend reflects emphasization of taxon. 
             handles = [
                 Line2D([0], [0],
                 color='w', marker=self.marker, markerfacecolor=color,
                 markeredgecolor=emph_edgecol if taxon == emph_taxon else self.edgecolor,
                 markeredgewidth=emph_edgewidth if taxon == emph_taxon else 0.5,
                 markersize=4, label=taxon
-                ) for taxon, color in color_map.items()
+                ) for taxon, color in self.colors.items()
                 ]
 
             ax_legend = axs[ax_n].legend(
@@ -466,13 +463,11 @@ class Scatter():
         Args:
             **kwargs: matplotlib.axes.Axes.scatter properties.
         """
-        species = self.emph_arg
-        emph_kwargs = self.emph_kwargs
-
         if self.emph_arg:
-            Scatter.plot(self, species, **emph_kwargs, **kwargs)
+            Scatter.plot(self, self.emph_arg, **self.emph_kwargs, **kwargs)
         else:
-            Scatter.plot.unemphasized(self, **kwargs)
+            Scatter.plot.__wrapped__(self, **kwargs)
+
         plt.show()
 
     @classmethod
@@ -530,13 +525,22 @@ class Scatter():
             new_colors (dict of str: str): ORIGINAL_COLORS dict merged with values from new_colors. 
             originals (bool, optional): if True, sets Scatter.new_def_colors to it's predetermined values.
                 Defaults to False.
+        
+        Raises:
+            ValueError: if any of new_colors keys are invalid taxon names.
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
         if originals:
             cls.new_def_colors = cls.ORIGINAL_COLORS
         elif new_colors:
-            cls.new_def_colors.update(new_colors)
+            if new_colors.keys() <= cls.new_def_colors.keys():
+                cls.new_def_colors.update(new_colors)
+            else:
+                raise ValueError(
+                    'Invalid taxon-keys were passed to set_def_colors(). See all_species_values.csv'
+                    ' for valid taxon names.'
+                    )
 
         logger.info(f'\ndefault color map updated to:\n{cls.new_def_colors}\n')
 
