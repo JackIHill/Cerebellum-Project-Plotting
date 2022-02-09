@@ -36,6 +36,8 @@ Assigning an object to ```Scatter()``` and calling ```display()``` on it, withou
 <br>
 
 ```python
+# If custom dataframe:
+# Scatter.data = df
 plot = Scatter()
 plot.display()
 ```
