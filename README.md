@@ -105,15 +105,17 @@ plot2 = Scatter(colors={'Hylobatidae':'blue'})
 plot2.display()
 
 # set default color for Hominidae plot points, for all subsequent plots. 
-plot3 = Scatter.set_def_colors({'Hominidae':'red'}) 
+Scatter.set_def_colors({'Hominidae':'red'}) 
+plot3 = Scatter()
 plot3.display()
 
-# default color for Hominidae is red, all other colors are original (Hylobatidae no longer blue). 
+# default color for Hominidae is now red, all other colors are original (Hylobatidae no longer blue). 
 plot4 = Scatter() 
 plot4.display()
 
 # set default colors to module-defined default color map
-plot5 = Scatter.set_def_colors(originals=True)
+Scatter.set_def_colors(originals=True)
+plot5 = Scatter()
 plot5.display()
 ```
 
