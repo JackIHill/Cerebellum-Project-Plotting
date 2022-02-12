@@ -27,7 +27,7 @@ class Scatter(object):
     multitudinal plots to their respective 'Logged' or 'Simple' save folders, containing save-details text files.
 
     Attributes:
-        data: dataframe. Ensure dataframe contains a 'Taxon' column.
+        data: dataframe. Ensure dataframe contains a 'Family' column.
         ORIGINAL_COLORS: default species:color map {'Hominidae': '#7f48b5', 'Hylobatidae': '#c195ed',
             'Cercopithecidae': '#f0bb3e', 'Platyrrhini': '#f2e3bd'}.
         new_def_colors: user-updated default species:color map. Defaults to copy of ORIGINAL_COLORS.
@@ -124,7 +124,7 @@ class Scatter(object):
             self._colors (dict of str:str): default or updated species:color map.
         
         Raises:
-            ValueError: if any of new_colors keys are invalid taxon names.
+            ValueError: if any of new_colors keys are invalid taxonomic family names.
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
@@ -140,8 +140,8 @@ class Scatter(object):
                 colors.update(new_colors)
             else:
                 raise ValueError(
-                    'Invalid taxon-keys were passed to set_def_colors(). See all_species_values.csv'
-                    ' for valid taxon names.'
+                    'Invalid taxonomic family-keys were passed to set_def_colors(). See all_species_values.csv'
+                    ' for valid family names.'
                     )
         self._colors = colors
 
@@ -236,7 +236,10 @@ class Scatter(object):
 
         invalid_cols = []    
         for col_idx in cols:
-            if col_idx >= len(Scatter.data.columns) or (Scatter.data[Scatter.data.columns[col_idx]].dtype != ('float64' or 'int64')) :
+            if (
+                col_idx >= len(Scatter.data.columns)
+                or Scatter.data[Scatter.data.columns[col_idx]].dtype != ('float64' or 'int64')
+            ):
                 invalid_cols.append(col_idx)
 
         valid_cols = [col_idx for col_idx in cols if col_idx not in invalid_cols]
@@ -273,65 +276,67 @@ class Scatter(object):
         
         return xy_pairs
 
-    def emphasize(self, species, **kwargs):
-        """highlights the data points exclusive to `species_or_taxon`, by reducing the alpha value of all other 
+    def emphasize(self, species_or_fam_name, **kwargs):
+        """highlights the data points exclusive to `species_or_fam_name`, by reducing the alpha value of all other 
         points to `alpha_value`, increasing marker size to `s`, and increasing line width to `linewidth`.
 
         Args:
-            species_or_taxon (str): taxon name (e.g. 'Hominidae') or species name (e.g. 'Homo_sapiens')
+            species_or_fam_name (str): family name (e.g. 'Hominidae') or species name (e.g. 'Homo_sapiens')
                 from all_species_values.csv to be emphasized.
             with_highlight (bool, optional): enable or disable emphasize behaviour. Defaults to True.
             color (str, optional): the facecolor of emphasised points, where valid colors are matplotlib named colors
-                or hex color codes. Defaults to self.color value for respective taxon.
+                or hex color codes. Defaults to self.color value for respective taxonomic family.
             edgecolor (str, optional): the border color of emphasised point, where valid colors are matplotlib
                 named colors or hex color codes. Defaults to self.edgecolor.
             alpha (float, optional): the alpha blending value, between 0 (transparent) and 1 (opaque). If None,
                 no transparency. Defaults to 0.2.
             s (float, optional): the marker size in points**2. Defaults to None.
             linewidth (float, optional): marker-edge width. Defaults to 1.5.
-            with_arrows (bool, optional): draws arrow towards all `species_or_taxon` points. Defaults to False.
-            legend (bool, optional): creates additional legend referring to `species_or_taxon`. Defaults to True.
+            with_arrows (bool, optional): draws arrow towards all `species_or_fam_name` points. Defaults to False.
+            legend (bool, optional): creates additional legend referring to `species_or_fam_name`. Defaults to True.
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
-        self.emph_arg = species
+        self.emph_arg = species_or_fam_name
         self.emph_kwargs = kwargs
 
     def add_emphasis(func):
         @wraps(func)
-        def wrapper(self, species_or_taxon, with_highlight=True, color=None, edgecolor=None,
+        def wrapper(self, species_or_fam_name, with_highlight=True, color=None, edgecolor=None,
             alpha=0.2, s=None, linewidth=1.5, with_arrows=False, scientific_name=True, legend=True):
             
-            # get the higher class (Species or Taxon) for the lower class passed to `species_or_taxon`.
-            # e.g. higher_class = 'Species' when `species_or_taxon` == 'Homo_sapiens'.
-            locate_higher_class = Scatter.data.apply(lambda row: row[row == species_or_taxon], axis=1)
-            class_name = ''.join(item[0] for item in locate_higher_class.iteritems())
+            # get the rank name (Species or Family) for the name passed to `species_or_fam_name`.
+            # e.g. rank = 'Species' when `species_or_fam_name` == 'Homo_sapiens'.
+            rank = (Scatter.data == species_or_fam_name).idxmax(axis=1)[0]
 
-            species_filt = Scatter.data[class_name] == species_or_taxon
-
-            if color is None:
-                color = ''.join(Scatter.data[species_filt].Taxon.map(self.colors).unique())
+            # filter for `species_or_fam_name` values only. 
+            name_filt = Scatter.data[rank] == species_or_fam_name
             
+            if color is None:
+                family_name = Scatter.data.loc[name_filt, 'Family'].values[0]
+                color = self.colors[family_name]
+              
             if edgecolor is None:
                 edgecolor = self.edgecolor
             
-            if class_name == 'Taxon':
-                self.colors = {species_or_taxon: color}
+            # ensures Family legend markers are updated. 
+            if rank == 'Family':
+                self.colors = {species_or_fam_name: color}
 
             if not with_highlight: 
                 alpha = 1
                 
             fig, axs = func(
                 self,
-                emph_taxon=species_or_taxon, 
+                emph_family=species_or_fam_name, 
                 emph_edgecol=edgecolor, emph_edgewidth=linewidth,
                 alpha=alpha
                 )
 
             for ax_n, (x, y) in enumerate(self.xy):
-                # get data-points which correspond to `species_or_taxon` value.
-                species_x = Scatter.data.loc[species_filt, x]
-                species_y = Scatter.data.loc[species_filt, y]
+                # get data-points which correspond to `species_or_fam_name` value.
+                species_x = Scatter.data.loc[name_filt, x]
+                species_y = Scatter.data.loc[name_filt, y]
                 
                 if with_highlight:
                     axs[ax_n].scatter(
@@ -339,11 +344,11 @@ class Scatter(object):
                         facecolors=color, edgecolors=edgecolor, marker=self.marker,
                         s=s, linewidth=linewidth, alpha=0.85)
 
-                    if legend and class_name != 'Taxon':
+                    if legend and rank != 'Family':
                         if scientific_name: 
-                            legend_label = species_or_taxon[0] + '. ' + species_or_taxon.split('_')[1]
+                            legend_label = species_or_fam_name[0] + '. ' + species_or_fam_name.split('_')[1]
                         else:
-                            legend_label = species_or_taxon.replace('_', ' ')
+                            legend_label = species_or_fam_name.replace('_', ' ')
 
                         handles = [
                             Line2D([0], [0],
@@ -380,7 +385,7 @@ class Scatter(object):
         return wrapper
 
     @add_emphasis
-    def plot(self, emph_taxon=None, emph_edgecol=None, emph_edgewidth=0.5, **kwargs):
+    def plot(self, emph_family=None, emph_edgecol=None, emph_edgewidth=0.5, **kwargs):
         """Plots variables on figure axes with color map, legend, handles matching data-point colors,
         and custom labelling depending on instance variable `logged`.
 
@@ -398,22 +403,22 @@ class Scatter(object):
         for ax_n, (x, y) in enumerate(self.xy):
             axs[ax_n].scatter(
                 Scatter.data[x], Scatter.data[y],
-                c=Scatter.data.Taxon.map(self.colors),
+                c=Scatter.data.Family.map(self.colors),
                 edgecolor=self.edgecolor, marker=self.marker, **kwargs
                 )
 
-            # handles for main legend. legend reflects emphasization of taxon. 
+            # handles for main legend. legend reflects emphasization of family. 
             handles = [
                 Line2D([0], [0],
                 color='w', marker=self.marker, markerfacecolor=color,
-                markeredgecolor=emph_edgecol if taxon == emph_taxon else self.edgecolor,
-                markeredgewidth=emph_edgewidth if taxon == emph_taxon else 0.5,
-                markersize=4, label=taxon
-                ) for taxon, color in self.colors.items()
+                markeredgecolor=emph_edgecol if family == emph_family else self.edgecolor,
+                markeredgewidth=emph_edgewidth if family == emph_family else 0.5,
+                markersize=4, label=family
+                ) for family, color in self.colors.items()
                 ]
 
             ax_legend = axs[ax_n].legend(
-                title='Taxon',
+                title='Family',
                 loc=self.legend_loc,
                 handles=handles,
                 handletextpad=0.1,
@@ -527,7 +532,7 @@ class Scatter(object):
                 Defaults to False.
         
         Raises:
-            ValueError: if any of new_colors keys are invalid taxon names.
+            ValueError: if any of new_colors keys are invalid family names.
 
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
@@ -538,8 +543,8 @@ class Scatter(object):
                 cls.new_def_colors.update(new_colors)
             else:
                 raise ValueError(
-                    'Invalid taxon-keys were passed to set_def_colors(). See all_species_values.csv'
-                    ' for valid taxon names.'
+                    'Invalid family-keys were passed to set_def_colors(). See all_species_values.csv'
+                    ' for valid family names.'
                     )
 
         logger.info(f'\ndefault color map updated to:\n{cls.new_def_colors}\n')
