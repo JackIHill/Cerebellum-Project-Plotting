@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-Classes for creating simple Scatter or Regression plots from cerebellum morphology data.
+Classes for creating and saving simple Scatter or Regression plots from cerebellum morphology data.
 """
 
 import shutil
 import logging
 import warnings
-import math
 from pathlib import Path
 from itertools import combinations
 from datetime import datetime
@@ -36,7 +35,7 @@ class Scatter(object):
             arguments.
         __instances: list of class instances, for use when displaying or saving all instances.
     """
-    data = pd.read_csv('all_species_values.csv')
+    DATA = pd.read_csv('all_species_values.csv')
 
     ORIGINAL_COLORS = {
                 'Hominidae': '#7f48b5',
@@ -49,7 +48,7 @@ class Scatter(object):
     __instances = []
     
     def __init__(self, xy=None, colors=None, logged=False, *, figsize=None, grid=None, edgecolor='k', marker='o', 
-                title=None, legend_loc='upper left'):
+                title=None, legend_loc='upper left', species_average=False):
         """Construct object to be plotted with matplotlib.pyplot.
 
         Args:
@@ -79,6 +78,7 @@ class Scatter(object):
         self.marker = marker
         self.title = title
         self.legend_loc = legend_loc
+        self.species_average = species_average
 
         self.emph_arg = None       
         self.emph_kwargs = None
@@ -201,7 +201,7 @@ class Scatter(object):
             if len(self.xy) <= 3:
                 rows_cols = 1, len(self.xy)
             else:
-                rows_cols = 2, math.ceil(len(self.xy) / 2)
+                rows_cols = 2, np.ceil(len(self.xy) / 2)
 
         n_axes = rows_cols[0] * rows_cols[1]
         if n_axes < len(self.xy):
@@ -237,8 +237,8 @@ class Scatter(object):
         invalid_cols = []    
         for col_idx in cols:
             if (
-                col_idx >= len(Scatter.data.columns)
-                or Scatter.data[Scatter.data.columns[col_idx]].dtype != ('float64' or 'int64')
+                col_idx >= len(Scatter.DATA.columns)
+                or Scatter.DATA[Scatter.DATA.columns[col_idx]].dtype != ('float64' or 'int64')
             ):
                 invalid_cols.append(col_idx)
 
@@ -260,7 +260,7 @@ class Scatter(object):
                         )
 
                 # dict.fromkeys retains order of col indices.
-                xy_pairs = tuple(combinations(Scatter.data.columns[list(dict.fromkeys(valid_cols))], 2))
+                xy_pairs = tuple(combinations(Scatter.DATA.columns[list(dict.fromkeys(valid_cols))], 2))
             else:
                 raise ValueError
 
@@ -272,7 +272,7 @@ class Scatter(object):
                 f'Please ensure the list has at least 2 valid indices, where such indices refer to columns'
                 f' containing floating-point numbers or integers.\n'
                 )
-            xy_pairs = tuple(combinations(Scatter.data.columns[list(dict.fromkeys(Scatter.def_pairs))], 2))
+            xy_pairs = tuple(combinations(Scatter.DATA.columns[list(dict.fromkeys(Scatter.def_pairs))], 2))
         
         return xy_pairs
 
@@ -305,25 +305,22 @@ class Scatter(object):
         def wrapper(self, species_or_fam_name, with_highlight=True, color=None, edgecolor=None,
             alpha=0.2, s=None, linewidth=1.5, with_arrows=False, scientific_name=True, legend=True):
             
-            # get the rank name (Species or Family) for the name passed to `species_or_fam_name`.
-            # e.g. rank = 'Species' when `species_or_fam_name` == 'Homo_sapiens'.
-            rank = (Scatter.data == species_or_fam_name).idxmax(axis=1)[0]
+            # get the rank column name (Species or Family) for the name passed to `species_or_fam_name`.
+            # e.g. rank_col = 'Species' when `species_or_fam_name` == 'Homo_sapiens'.
+            rank_col = ''.join(Scatter.DATA.columns[(Scatter.DATA == species_or_fam_name).any()])
 
-            # filter for `species_or_fam_name` values only. 
-            name_filt = Scatter.data[rank] == species_or_fam_name
-            
             if color is None:
-                family_name = Scatter.data.loc[name_filt, 'Family'].values[0]
+                family_name = Scatter.DATA.loc[Scatter.DATA[rank_col] == species_or_fam_name, 'Family'].values[0]
                 color = self.colors[family_name]
-              
+
             if edgecolor is None:
                 edgecolor = self.edgecolor
-            
+
             # ensures Family legend markers are updated. 
-            if rank == 'Family':
+            if rank_col == 'Family':
                 self.colors = {species_or_fam_name: color}
 
-            if not with_highlight: 
+            if not with_highlight:
                 alpha = 1
                 
             fig, axs = func(
@@ -333,53 +330,44 @@ class Scatter(object):
                 alpha=alpha
                 )
 
+            # filter for `species_or_fam_name` values only. 
+            name_filt = self.data[rank_col] == species_or_fam_name
+            
             for ax_n, (x, y) in enumerate(self.xy):
                 # get data-points which correspond to `species_or_fam_name` value.
-                species_x = Scatter.data.loc[name_filt, x]
-                species_y = Scatter.data.loc[name_filt, y]
+                species_x = self.data.loc[name_filt, x]
+                species_y = self.data.loc[name_filt, y]
                 
-                if with_highlight:
-                    axs[ax_n].scatter(
-                        species_x, species_y,
-                        facecolors=color, edgecolors=edgecolor, marker=self.marker,
-                        s=s, linewidth=linewidth, alpha=0.85)
+                axs[ax_n].scatter(
+                    species_x, species_y,
+                    facecolors=color, edgecolors=edgecolor, marker=self.marker,
+                    s=s, linewidth=linewidth, alpha=0.85
+                    )
+                    
+                if legend and rank_col != 'Family':
+                    if scientific_name: 
+                        legend_label = species_or_fam_name[0] + '. ' + species_or_fam_name.split('_')[1]
+                    else:
+                        legend_label = species_or_fam_name.replace('_', ' ')
 
-                    if legend and rank != 'Family':
-                        if scientific_name: 
-                            legend_label = species_or_fam_name[0] + '. ' + species_or_fam_name.split('_')[1]
-                        else:
-                            legend_label = species_or_fam_name.replace('_', ' ')
+                    handles = [
+                        Line2D([0], [0],
+                        color='w', marker=self.marker, markerfacecolor=color,
+                        markeredgecolor=edgecolor, markersize=4,
+                        label=legend_label
+                        )]
 
-                        handles = [
-                            Line2D([0], [0],
-                            color='w', marker=self.marker, markerfacecolor=color,
-                            markeredgecolor=edgecolor, markersize=4,
-                            label=legend_label
-                            )]
-
-                        for xy_pair in zip(species_x, species_y):
-                            if not any(math.isnan(element) for element in xy_pair):
-                                emph_leg = axs[ax_n].legend(loc=(0.02, 0.55), handles=handles, handletextpad=0.1)
-                                emph_leg.get_frame().set_color('white')
-
+                    for xy_pair in zip(species_x, species_y):
+                        if not any(np.isnan(element) for element in xy_pair):
+                            emph_leg = axs[ax_n].legend(loc=(0.02, 0.55), handles=handles, handletextpad=0.1)
+                            emph_leg.get_frame().set_color('white')
+                            
                 if with_arrows:
-                    xmin, xmax = axs[ax_n].get_xlim()
-                    ymin, ymax = axs[ax_n].get_ylim()
-
-                    x_range, y_range = (xmax - xmin),  (ymax - ymin)
-
                     for x, y in zip(species_x, species_y):
-                        # determine scaling behaviour of arrow-tail co-ordinates for logged or unlogged plots.
-                        if self.logged:
-                            modifier = 10, - (y_range * 0.02)
-                            textcoords = 'offset points'
-                        else:
-                            modifier = (x + (x_range * 0.2)), (y - (y_range * 0.1))
-                            textcoords = None
-
                         axs[ax_n].annotate(          
-                            "", xy=(x, y), xytext=(modifier),
-                            arrowprops=dict(arrowstyle="->", shrinkB=5), textcoords=textcoords)
+                            "", xy=(x, y), xytext=(25, -20),
+                            arrowprops=dict(arrowstyle="->", shrinkB=5), textcoords='offset points')
+
             return fig
         wrapper.unemphasized = func
         return wrapper
@@ -400,10 +388,28 @@ class Scatter(object):
         fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=self.figsize, squeeze=False)
         axs = axs.flatten()
 
+        self.data = Scatter.DATA.copy()
+        
+        if self.species_average:
+            agg_dict = {}
+            for col in self.data.columns:
+                if self.data[col].dtype == 'float64':
+                    agg_dict[col] = 'mean'
+                else:
+                    if col != 'Species':
+                        agg_dict[col] = 'first'
+            
+            self.data = self.data.groupby('Species').agg(agg_dict).reset_index()
+            
+        if self.logged:
+            for col in self.data.columns:
+                if self.data[col].dtype == 'float64':
+                    self.data[col] = np.log(self.data[col])
+                 
         for ax_n, (x, y) in enumerate(self.xy):
             axs[ax_n].scatter(
-                Scatter.data[x], Scatter.data[y],
-                c=Scatter.data.Family.map(self.colors),
+                self.data[x], self.data[y],
+                c=self.data.Family.map(self.colors),
                 edgecolor=self.edgecolor, marker=self.marker, **kwargs
                 )
 
@@ -433,23 +439,17 @@ class Scatter(object):
                     )
         
             if self.logged:
-                axs[ax_n].set_xscale('symlog')
-                axs[ax_n].get_xaxis().set_major_formatter(tk.ScalarFormatter())
+                for var in (x, y):
+                    # values greater than 0 taken due to weird behavior when plots are not emphasised.
+                    ticks = [tick for tick in np.arange(
+                        np.floor(min(self.data[var].dropna())),
+                        np.ceil(max(self.data[var].dropna())),
+                        0.5) if tick >= -0.5]
 
-                axs[ax_n].set_yscale('symlog')   
-                axs[ax_n].get_yaxis().set_major_formatter(tk.ScalarFormatter())
-                axs[ax_n].set_yticks([10, 25, 50, 100, 250, 500, 1000])
-
-                # These xy values need custom xticks to better represent the range of values.
-                tick_list = [5, 10, 25, 50, 100, 200, 400, 1000]
-                if (x, y) == ('Cerebrum Volume', 'Cerebellum Volume'):
-                    axs[ax_n].set_xticks(tick_list)
-                else:
-                    axs[ax_n].set_xticks(tick_list[:-1])
-
-                # Remove minor ticks for logged plots. 
-                plt.rcParams['xtick.minor.size'] = 0
-                plt.rcParams['ytick.minor.size'] = 0
+                    if var == x:
+                        axs[ax_n].set_xticks(ticks)
+                    else:
+                        axs[ax_n].set_yticks(ticks)
 
         fig.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
@@ -537,7 +537,7 @@ class Scatter(object):
         matplotlib named colors: https://matplotlib.org/stable/gallery/color/named_colors.html
         """
         if originals:
-            cls.new_def_colors = cls.ORIGINAL_COLORS
+            cls.new_def_colors = cls.ORIGINAL_COLORS.copy()
         elif new_colors:
             if new_colors.keys() <= cls.new_def_colors.keys():
                 cls.new_def_colors.update(new_colors)
@@ -555,6 +555,31 @@ class Scatter(object):
         `colors` is not manually assigned.
         """
         return(cls.new_def_colors)
+
+    @classmethod
+    def describe_data(cls, counts=True, surface_area_boxplot=False, volume_boxplot=False):
+        if counts:
+            print(
+                f'The dataframe contains {cls.DATA.Species.nunique()} unique species,'
+                f' constituting {cls.DATA.Species.count()} data points and'
+                f' {cls.DATA.Family.nunique()} unique families.'
+                )
+
+        if surface_area_boxplot:
+            cols = [col for col in cls.DATA.columns if 'Surface' and 'Area' in col]
+            cls.DATA[cols].plot(kind='box')
+
+            plt.title(f'Distribution of {cols[0]}\nand {cols[1]} Data')
+            plt.ylabel('Surface Area $\mathrm{(cm^2)}$')
+
+        if volume_boxplot:
+            cols = [col for col in cls.DATA.columns if 'Volume' in col]
+            cls.DATA[cols].plot(kind='box')
+
+            plt.title(f'Distribution of {cols[0]}\nand {cols[1]} Data')
+            plt.ylabel('Volume $\mathrm{(cm^3)}$')
+
+        plt.show()
 
     def save(self) -> None:
         """Save instance of cbpmodels.Scatter instance using Scatter.save_plots()."""
@@ -591,7 +616,7 @@ class Scatter(object):
             figures = args
 
         for figure in figures:
-            if figure.emphasized:
+            if figure.emph_arg:
                 fig = figure.plot(figure.emph_arg, **figure.emph_kwargs)
             else:
                 fig = Scatter.plot.unemphasized(figure)[0]

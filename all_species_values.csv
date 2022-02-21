@@ -1,101 +1,101 @@
-Species,Cerebellum Surface Area,Cerebrum Surface Area,Cerebellum Volume,Cerebrum Volume,Source,Taxon,
-Homo_sapiens,,,111.4,1088,MacLeod et al. (2003),Hominidae,
-Homo_sapiens,,,119.6,1212,,Hominidae,
-Homo_sapiens,,,148.2,1330,,Hominidae,
-Homo_sapiens,,,147.2,1334,,Hominidae,
-Homo_sapiens,,,141.7,1403,,Hominidae,
-Homo_sapiens,,,154,1426,,Hominidae,
-Homo_sapiens,,,125.3,1171,,Hominidae,
-Homo_sapiens,,,182.1,1582.6,,Hominidae,
-Homo_sapiens,,,138.2,1102.3,,Hominidae,
-Homo_sapiens,,,133.2,1093.6,,Hominidae,
-Homo_sapiens,,,136.9,1137.2,,Hominidae,
-Homo_sapiens,,,138.6,1387.1,,Hominidae,
-Homo_sapiens,,,132,1176.6,,Hominidae,
-Homo_sapiens,,,139.8,1264.5,,Hominidae,
-Homo_sapiens,1590,2038,,,Sereno et al. (2020),Hominidae,
-Homo_sapiens,1128,,,,Sultan and Braitenberg (1993),Hominidae,
-Pan_troglodytes,345.545,,52.1,383.22,Ashwell (2020),Hominidae,
-Pan_troglodytes,,,50.1,343.8,MacLeod et al. (2003),Hominidae,
-Pan_troglodytes,,,51.4,391.2,,Hominidae,
-Pan_troglodytes,,,51.8,311.4,,Hominidae,
-Pan_troglodytes,,,45.7,365.9,,Hominidae,
-Pan_troglodytes,,,45,282.7,,Hominidae,
-Pan_troglodytes,,,39.6,328.6,,Hominidae,
-Pan_troglodytes,,,46.1,317.9,,Hominidae,
-Pan_troglodytes,,,53.5,405.4,,Hominidae,
-Pan_troglodytes,,,28.2,265,,Hominidae,
-Pan_troglodytes,,,56.5,424.7,,Hominidae,
-Pan_troglodytes,,,47.8,347,,Hominidae,
-Pan_troglodytes,,,45.3,445,,Hominidae,
-Pan_troglodytes,,,53.3,405.4,,Hominidae,
-Pan_troglodytes,,,40.6,333.5,,Hominidae,
-Pan_paniscus,,,46.1,322.4,MacLeod et al. (2003),Hominidae,
-Pan_paniscus,,,51.4,331.8,,Hominidae,
-Pan_paniscus,,,39.7,309.2,,Hominidae,
-Pan_paniscus,,,39.5,281.4,,Hominidae,
-Pan_paniscus,,,54.1,378.4,,Hominidae,
-Pan_paniscus,,,53,312.7,,Hominidae,
-Pongo_pygmaeus,,,42.7,343,MacLeod et al. (2003),Hominidae,
-Pongo_pygmaeus,,,45.2,383.2,,Hominidae,
-Pongo_pygmaeus,,,59.3,423.8,,Hominidae,
-Pongo_pygmaeus,,,52,477.5,,Hominidae,
-Pongo_pygmaeus,,,22.4,221,,Hominidae,
-Pongo_pygmaeus,,,41.2,356.2,,Hominidae,
-Pongo_pygmaeus,,,54.3,424.7,,Hominidae,
-Pongo_pygmaeus,,,39.2,333,,Hominidae,
-Gorilla_gorilla,,,56.1,330.7,MacLeod et al. (2003),Hominidae,
-Gorilla_gorilla,,,81.2,463.9,,Hominidae,
-Gorilla_gorilla,,,60.1,434.4,,Hominidae,
-Gorilla_gorilla,,,51,414.5,,Hominidae,
-Gorilla_gorilla,,,48.5,362.9,,Hominidae,
-Gorilla_beringei,25.82,,3.74,,Present Study (PROVISIONAL/incorrect),Hominidae,
-Hylobates_lar,,,10.4,76.1,MacLeod et al. (2003),Hylobatidae,
-Hylobates_lar,,,13.5,99.7,,Hylobatidae,
-Hylobates_lar,,,13.6,80,,Hylobatidae,
-Hylobates_lar,,,9,76.3,,Hylobatidae,
-Hylobates_lar,,,10.6,88.8,,Hylobatidae,
-Hylobates_lar,,,14.5,107.9,,Hylobatidae,
-Hylobates_lar,,,12.3,79.3,,Hylobatidae,
-Hylobates_lar,,,13.8,115.8,,Hylobatidae,
-Hylobates_lar,,,12,98.4,,Hylobatidae,
-Callithrix_jacchus,9.93,,0.756,5.385,Ashwell (2020),Platyrrhini,
-Plecturocebus_moloch,13,,0.879,14.32,,Platyrrhini,
-Alouatta_palliata,37.7,,4.28,34.23,,Platyrrhini,
-Cebus_capucinus,93.7,,8.48,78.64,,Platyrrhini,
-Sapajus_apella,,,5.4,60.1,MacLeod et al. (2003),Platyrrhini,
-Sapajus_apella,,,5.1,55.2,,Platyrrhini,
-Sapajus_apella,,,7.7,73.2,,Platyrrhini,
-Sapajus_apella,,,7.6,77.3,,Platyrrhini,
-Saimiri_sciureus,15.46,,1.322,15.955,Ashwell (2020),Platyrrhini,
-Saimiri_sciureus,,,2.1,23.6,MacLeod et al. (2003),Platyrrhini,
-Saimiri_sciureus,,,1.9,23.7,,Platyrrhini,
-Saimiri_sciureus,,,2,20.8,,Platyrrhini,
-Saimiri_sciureus,,,2.2,24.3,,Platyrrhini,
-Saimiri_sciureus,,,1.9,19,,Platyrrhini,
-Saimiri_sciureus,,,1.9,20.7,,Platyrrhini,
-Macaca_mulatta,,,6.3,72.8,MacLeod et al. (2003),Cercopithecidae,
-Macaca_mulatta,,,7.7,82.3,,Cercopithecidae,
-Macaca_mulatta,,,7.5,85.4,,Cercopithecidae,
-Macaca_mulatta,,,7.6,84.4,,Cercopithecidae,
-Macaca_mulatta,,,8.3,99.5,,Cercopithecidae,
-Macaca_mulatta,,,6,,,Cercopithecidae,
-Macaca_mulatta,,,9.8,101.2,,Cercopithecidae,
-Macaca_mulatta,,,9.4,108.3,,Cercopithecidae,
-Macaca,90.4,269,,,Sereno et al. (2020),Cercopithecidae,
-Macaca,81,,,,Sultan and Braitenberg (1993),Cercopithecidae,
-Semnopithecus_entellus,92.2,,11.2,93.1,Ashwell (2020),Cercopithecidae,
-Mandrillus_sphinx,90.4,,10.359,142,,Cercopithecidae,
-Papio_cynocephalus,,,14.8,159.2,MacLeod et al. (2003),Cercopithecidae,
-Papio_cynocephalus,,,12.4,127.4,,Cercopithecidae,
-Alouatta_seniculus,,,4.3,36.5,,Platyrrhini,
-Alouatta_seniculus,,,4,38.3,,Platyrrhini,
-Ateles_paniscus,,,10.7,107.3,,Platyrrhini,
-Ateles_paniscus,,,11.7,93,,Platyrrhini,
-Ateles_paniscus,,,8.7,71.8,,Platyrrhini,
-Cercocebus_torquatus,,,10.6,97.9,,Cercopithecidae,
-Cercocebus_torquatus,,,8.1,96.2,,Cercopithecidae,
-Cercocebus_torquatus,,,7.4,97.8,,Cercopithecidae,
-Cercocebus_torquatus,,,8.5,103.5,,Cercopithecidae,
-Erythrocebus_patas,,,7.9,89,,Cercopithecidae,
-Lophocebus_albigena,,,11.7,112,,Cercopithecidae,
+Species,Cerebellum Surface Area,Cerebrum Surface Area,Cerebellum Volume,Cerebrum Volume,Source,Family
+Homo_sapiens,,,111.4,1088,MacLeod et al. (2003),Hominidae
+Homo_sapiens,,,119.6,1212,,Hominidae
+Homo_sapiens,,,148.2,1330,,Hominidae
+Homo_sapiens,,,147.2,1334,,Hominidae
+Homo_sapiens,,,141.7,1403,,Hominidae
+Homo_sapiens,,,154,1426,,Hominidae
+Homo_sapiens,,,125.3,1171,,Hominidae
+Homo_sapiens,,,182.1,1582.6,,Hominidae
+Homo_sapiens,,,138.2,1102.3,,Hominidae
+Homo_sapiens,,,133.2,1093.6,,Hominidae
+Homo_sapiens,,,136.9,1137.2,,Hominidae
+Homo_sapiens,,,138.6,1387.1,,Hominidae
+Homo_sapiens,,,132,1176.6,,Hominidae
+Homo_sapiens,,,139.8,1264.5,,Hominidae
+Homo_sapiens,1590,2038,,,Sereno et al. (2020),Hominidae
+Homo_sapiens,1128,,,,Sultan and Braitenberg (1993),Hominidae
+Pan_troglodytes,345.545,,52.1,383.22,Ashwell (2020),Hominidae
+Pan_troglodytes,,,50.1,343.8,MacLeod et al. (2003),Hominidae
+Pan_troglodytes,,,51.4,391.2,,Hominidae
+Pan_troglodytes,,,51.8,311.4,,Hominidae
+Pan_troglodytes,,,45.7,365.9,,Hominidae
+Pan_troglodytes,,,45,282.7,,Hominidae
+Pan_troglodytes,,,39.6,328.6,,Hominidae
+Pan_troglodytes,,,46.1,317.9,,Hominidae
+Pan_troglodytes,,,53.5,405.4,,Hominidae
+Pan_troglodytes,,,28.2,265,,Hominidae
+Pan_troglodytes,,,56.5,424.7,,Hominidae
+Pan_troglodytes,,,47.8,347,,Hominidae
+Pan_troglodytes,,,45.3,445,,Hominidae
+Pan_troglodytes,,,53.3,405.4,,Hominidae
+Pan_troglodytes,,,40.6,333.5,,Hominidae
+Pan_paniscus,,,46.1,322.4,MacLeod et al. (2003),Hominidae
+Pan_paniscus,,,51.4,331.8,,Hominidae
+Pan_paniscus,,,39.7,309.2,,Hominidae
+Pan_paniscus,,,39.5,281.4,,Hominidae
+Pan_paniscus,,,54.1,378.4,,Hominidae
+Pan_paniscus,,,53,312.7,,Hominidae
+Pongo_pygmaeus,,,42.7,343,MacLeod et al. (2003),Hominidae
+Pongo_pygmaeus,,,45.2,383.2,,Hominidae
+Pongo_pygmaeus,,,59.3,423.8,,Hominidae
+Pongo_pygmaeus,,,52,477.5,,Hominidae
+Pongo_pygmaeus,,,22.4,221,,Hominidae
+Pongo_pygmaeus,,,41.2,356.2,,Hominidae
+Pongo_pygmaeus,,,54.3,424.7,,Hominidae
+Pongo_pygmaeus,,,39.2,333,,Hominidae
+Gorilla_gorilla,,,56.1,330.7,MacLeod et al. (2003),Hominidae
+Gorilla_gorilla,,,81.2,463.9,,Hominidae
+Gorilla_gorilla,,,60.1,434.4,,Hominidae
+Gorilla_gorilla,,,51,414.5,,Hominidae
+Gorilla_gorilla,,,48.5,362.9,,Hominidae
+Gorilla_beringei,496,770,53.6,322,Present Study,Hominidae
+Hylobates_lar,,,10.4,76.1,MacLeod et al. (2003),Hylobatidae
+Hylobates_lar,,,13.5,99.7,,Hylobatidae
+Hylobates_lar,,,13.6,80,,Hylobatidae
+Hylobates_lar,,,9,76.3,,Hylobatidae
+Hylobates_lar,,,10.6,88.8,,Hylobatidae
+Hylobates_lar,,,14.5,107.9,,Hylobatidae
+Hylobates_lar,,,12.3,79.3,,Hylobatidae
+Hylobates_lar,,,13.8,115.8,,Hylobatidae
+Hylobates_lar,,,12,98.4,,Hylobatidae
+Callithrix_jacchus,9.93,,0.756,5.385,Ashwell (2020),Platyrrhini
+Plecturocebus_moloch,13,,0.879,14.32,,Platyrrhini
+Alouatta_palliata,37.7,,4.28,34.23,,Platyrrhini
+Cebus_capucinus,93.7,,8.48,78.64,,Platyrrhini
+Sapajus_apella,,,5.4,60.1,MacLeod et al. (2003),Platyrrhini
+Sapajus_apella,,,5.1,55.2,,Platyrrhini
+Sapajus_apella,,,7.7,73.2,,Platyrrhini
+Sapajus_apella,,,7.6,77.3,,Platyrrhini
+Saimiri_sciureus,15.46,,1.322,15.955,Ashwell (2020),Platyrrhini
+Saimiri_sciureus,,,2.1,23.6,MacLeod et al. (2003),Platyrrhini
+Saimiri_sciureus,,,1.9,23.7,,Platyrrhini
+Saimiri_sciureus,,,2,20.8,,Platyrrhini
+Saimiri_sciureus,,,2.2,24.3,,Platyrrhini
+Saimiri_sciureus,,,1.9,19,,Platyrrhini
+Saimiri_sciureus,,,1.9,20.7,,Platyrrhini
+Macaca_mulatta,,,6.3,72.8,MacLeod et al. (2003),Cercopithecidae
+Macaca_mulatta,,,7.7,82.3,,Cercopithecidae
+Macaca_mulatta,,,7.5,85.4,,Cercopithecidae
+Macaca_mulatta,,,7.6,84.4,,Cercopithecidae
+Macaca_mulatta,,,8.3,99.5,,Cercopithecidae
+Macaca_mulatta,,,6,,,Cercopithecidae
+Macaca_mulatta,,,9.8,101.2,,Cercopithecidae
+Macaca_mulatta,,,9.4,108.3,,Cercopithecidae
+Macaca,90.4,269,,,Sereno et al. (2020),Cercopithecidae
+Macaca,81,,,,Sultan and Braitenberg (1993),Cercopithecidae
+Semnopithecus_entellus,92.2,,11.2,93.1,Ashwell (2020),Cercopithecidae
+Mandrillus_sphinx,90.4,,10.359,142,,Cercopithecidae
+Papio_cynocephalus,,,14.8,159.2,MacLeod et al. (2003),Cercopithecidae
+Papio_cynocephalus,,,12.4,127.4,,Cercopithecidae
+Alouatta_seniculus,,,4.3,36.5,,Platyrrhini
+Alouatta_seniculus,,,4,38.3,,Platyrrhini
+Ateles_paniscus,,,10.7,107.3,,Platyrrhini
+Ateles_paniscus,,,11.7,93,,Platyrrhini
+Ateles_paniscus,,,8.7,71.8,,Platyrrhini
+Cercocebus_torquatus,,,10.6,97.9,,Cercopithecidae
+Cercocebus_torquatus,,,8.1,96.2,,Cercopithecidae
+Cercocebus_torquatus,,,7.4,97.8,,Cercopithecidae
+Cercocebus_torquatus,,,8.5,103.5,,Cercopithecidae
+Erythrocebus_patas,,,7.9,89,,Cercopithecidae
+Lophocebus_albigena,,,11.7,112,,Cercopithecidae
