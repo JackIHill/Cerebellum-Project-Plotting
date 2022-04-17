@@ -42,7 +42,6 @@ plot = Scatter()
 plot.display()
 ```
 Produces: 
-
 ![default_plot_variables](https://user-images.githubusercontent.com/73407206/148590626-292c2844-1c0c-40e0-817a-452dde6c739f.png)
 
 <br>
@@ -59,7 +58,6 @@ plot.display()
 
 Produces:
 <br>
-<br>
 ![logged_cbvol_cbllum_vol](https://user-images.githubusercontent.com/73407206/148590809-855fe955-aaf0-42dd-8a32-b8e9736cbae8.png)
 
 <br>
@@ -73,15 +71,11 @@ plot.display()
 will therefore produce 6 plots; variable combinations:
 ```(1, 2)```, ```(1, 3)```, ```(1, 4)```, ```(2, 3)```, ```(2, 4)```, ```(3, 4)``` where, in ```all_species_values.csv```:
 
-<br>
-
 column index 1 = Cerebellum Surface Area <br>
 column index 2 = Cerebrum Surface Area <br>
 column index 3 = Cerebellum Volume <br>
 column index 4 = Cerebrum Volume <br>
-
 <br>
-
 Manually change the color map for the current plot using the ```colors``` keyword. Pass a dictionary containing a taxon name key and a color value, where valid taxa are 'Hominidae', 'Hylobatidae', 'Cercopithecidae' and 'Platyrrhini' and valid colors are [matplotlib named colors](https://matplotlib.org/stable/gallery/color/named_colors.html) or hex color codes. Thus:
 
 ```python
@@ -117,7 +111,7 @@ Scatter.set_def_colors(originals=True)
 plot4 = Scatter()
 plot4.display()
 ```
-
+<br>
 Default variable combinations can be set in a similar way by passing a list of column indices to ```Scatter.set_def_pairs()```
 To set the default combinations back to [4, 3, 1]; ```Scatter.set_def_pairs(originals=True)```.
 <br>
@@ -131,8 +125,11 @@ plot.display(kwargs)
 
 <br>
 
-```plot.save()``` will create a new directory inside the current directory, and store the current figure in 'Saved Simple Plots' or 'Saved Log Plots' depending on if ```logged``` is True. SIMPLE / LOG_PLOT_DETAILS.txt files will be created simultaneously, providing information for each figure on the number of plots, save file order, variables used for each plot, and the time at figure creation. 
+If your custom DataFrame is large enough to obscure the plot canvas with too many points, I recommend you set the `species_average` keyword argument to `True`. 
 
+<br>
+
+```plot.save()``` will create a new directory inside the current directory, and store the current figure in 'Saved Simple Plots' or 'Saved Log Plots' depending on if ```logged``` is True. SIMPLE / LOG_PLOT_DETAILS.txt files will be created simultaneously, providing information for each figure on the number of plots, save file order, variables used for each plot, and the time at figure creation. 
 <br>
 
 You can save a 'batch' of figures using ```Scatter.save_plots(plot1, plot2, ...)```, like so:
