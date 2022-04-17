@@ -129,7 +129,7 @@ plot.display(kwargs)
 
 <br>
 
-If your custom DataFrame is large enough to obscure the plot canvas with too many points, I recommend you set the `species_average` keyword argument to `True`. 
+If your custom DataFrame is large enough to obscure the plot canvas with too many points, I recommend you set `species_average=True` within `Scatter()`. 
 
 <br>
 
