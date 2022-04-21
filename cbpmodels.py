@@ -17,9 +17,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
 from matplotlib.lines import Line2D
 
-from fpdf import FPDF
-from PIL import Image
-
 logger = logging.getLogger('cbpmodels.py')
 
 class Scatter(object):
@@ -418,17 +415,7 @@ class Scatter(object):
                 self.data[x], self.data[y],
                 c=self.data.Family.map(self.colors),
                 edgecolor=self.edgecolor, marker=self.marker, **kwargs
-                )
-
-            if self.overlay:
-                mean_data = self.data.groupby(groupby_col).agg(col_agg_dict).reset_index()
-
-                # average points for each family/species drawn on top of main plot. 
-                axs[ax_n].scatter(
-                    mean_data[x], mean_data[y],
-                    c=mean_data.Family.map(self.colors),
-                    edgecolor='mediumblue', marker='s', linewidth=2, s=35, **kwargs
-                    )
+                )     
  
             # handles for main legend. legend reflects emphasization of family. 
             handles = [
