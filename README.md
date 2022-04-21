@@ -42,6 +42,7 @@ plot = Scatter()
 plot.display()
 ```
 Produces: 
+
 ![default_plot_variables](https://user-images.githubusercontent.com/73407206/148590626-292c2844-1c0c-40e0-817a-452dde6c739f.png)
 
 <br>
@@ -58,6 +59,7 @@ plot.display()
 
 Produces:
 <br>
+
 ![logged_cbvol_cbllum_vol](https://user-images.githubusercontent.com/73407206/148590809-855fe955-aaf0-42dd-8a32-b8e9736cbae8.png)
 
 <br>
@@ -112,8 +114,10 @@ plot4 = Scatter()
 plot4.display()
 ```
 <br>
-Default variable combinations can be set in a similar way by passing a list of column indices to ```Scatter.set_def_pairs()```
-To set the default combinations back to [4, 3, 1]; ```Scatter.set_def_pairs(originals=True)```.
+
+Default variable combinations can be set in a similar way by passing a list of column indices to   ```Scatter.set_def_pairs()```.
+To set the default combinations back to [4, 3, 1];    ``` Scatter.set_def_pairs(originals=True)``` .
+
 <br>
 
 ```Scatter.display()``` also takes arbitrary keyword arguments from [matplotlib.pyplot.scatter](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html):
@@ -125,7 +129,7 @@ plot.display(kwargs)
 
 <br>
 
-If your custom DataFrame is large enough to obscure the plot canvas with too many points, I recommend you set the `species_average` keyword argument to `True`. 
+If your custom DataFrame is large enough to obscure the plot canvas with too many points, I recommend you set `species_average=True` within `Scatter()`. 
 
 <br>
 

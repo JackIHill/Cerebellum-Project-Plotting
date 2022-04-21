@@ -20,13 +20,13 @@ from matplotlib.lines import Line2D
 logger = logging.getLogger('cbpmodels.py')
 
 class Scatter(object):
-    """Class for creating fully-constructed scatter plots with matplotlib.pyplot as a basis, intended for use with the
-    Cerebellum Project. Facilitates creation of mutliple plots at once, with autonomous axes label and legend creation.
-    Also facilitates plotting of pairwise variable combinations. Includes methods for saving individual or
-    multitudinal plots to their respective 'Logged' or 'Simple' save folders, containing save-details text files.
+    """Class for creating fully-constructed scatter plots with matplotlib.pyplot, intended for use within the
+    Cerebellum Project. Facilitates creation of mutliple plots at once, with autonomous axes label and legend creation,
+    as well as plotting pairwise variable combinations. Includes methods for saving individual or
+    multitudinal plots to their respective 'Logged' or 'Simple' save folders, each containing save-details text files.
 
     Attributes:
-        data: dataframe. Ensure dataframe contains a 'Family' column.
+        DATA: default dataframe. Ensure dataframe contains a 'Family' column.
         ORIGINAL_COLORS: default species:color map {'Hominidae': '#7f48b5', 'Hylobatidae': '#c195ed',
             'Cercopithecidae': '#f0bb3e', 'Platyrrhini': '#f2e3bd'}.
         new_def_colors: user-updated default species:color map. Defaults to copy of ORIGINAL_COLORS.
@@ -44,11 +44,11 @@ class Scatter(object):
                 'Platyrrhini': '#f2e3bd'
                 } 
     new_def_colors = ORIGINAL_COLORS.copy()
-    def_pairs = (4, 3, 1)
+    def_pairs = 4, 3, 1
     __instances = []
     
     def __init__(self, xy=None, colors=None, logged=False, *, figsize=None, grid=None, edgecolor='k', marker='o', 
-                title=None, legend_loc='upper left', species_average=False):
+                title=None, legend_loc='upper left', species_means=False, family_means=False, overlay_means=False):
         """Construct object to be plotted with matplotlib.pyplot.
 
         Args:
@@ -62,8 +62,8 @@ class Scatter(object):
             logged (bool, optional): produce unlogged (False) or logged plots (True). Defaults to False.
             figsize (tuple of float, float, optional): width, height of figure in inches. Defaults to Scatter.figsize.
             grid (tuple of int, optional): Number of rows/columns of the subplot grid. Defaults to Scatter.grid.
-            edgecolor (str, optional): The border color of each data-point. Defaults to 'k'.
-            marker (str, optional): The marker style of each data-point. Defaults to 'o'.
+            edgecolor (str, optional): The border color of each data-point. Defaults to 'k' (black).
+            marker (str, optional): The marker style of each data-point. Defaults to 'o' (circle).
             title (str, optional): Main title of the figure. Defaults to None.
             legend_loc (str, optional): Location of the legend on each plot. Defaults to 'upper left'.
         
@@ -78,7 +78,9 @@ class Scatter(object):
         self.marker = marker
         self.title = title
         self.legend_loc = legend_loc
-        self.species_average = species_average
+        self.species_means = species_means
+        self.family_means = family_means
+        self.overlay_means = overlay_means
 
         self.emph_arg = None       
         self.emph_kwargs = None
@@ -100,14 +102,14 @@ class Scatter(object):
         return self._xy
 
     @xy.setter
-    def xy(self, cols_or_str):
-        if cols_or_str is None:
+    def xy(self, cols_or_pairs):
+        if cols_or_pairs is None:
             xy = Scatter.xy_pairs(Scatter.def_pairs)
         else:
             try:
-                xy = [[str(var) for var in tuples] for tuples in cols_or_str]
+                xy = [[str(var) for var in tuples] for tuples in cols_or_pairs]
             except TypeError:
-                xy = Scatter.xy_pairs(cols_or_str)
+                xy = Scatter.xy_pairs(cols_or_pairs)
 
         self._xy = xy
 
@@ -318,7 +320,7 @@ class Scatter(object):
 
             # ensures Family legend markers are updated. 
             if rank_col == 'Family':
-                self.colors = {species_or_fam_name: color}
+                self.colors.update({species_or_fam_name: color})
 
             if not with_highlight:
                 alpha = 1
@@ -385,34 +387,46 @@ class Scatter(object):
                 (each instance passed to save_plots() (and by extension, save()).
             axs (class): array of matplotlib.axes.Axes objects.
         """
-        fig, axs = plt.subplots(self.grid[0], self.grid[1], figsize=self.figsize, squeeze=False)
+        fig, axs = plt.subplots(*self.grid, figsize=self.figsize, squeeze=False)
         axs = axs.flatten()
 
         self.data = Scatter.DATA.copy()
         
-        if self.species_average:
-            agg_dict = {}
-            for col in self.data.columns:
-                if self.data[col].dtype == 'float64':
-                    agg_dict[col] = 'mean'
-                else:
-                    if col != 'Species':
-                        agg_dict[col] = 'first'
-            
-            self.data = self.data.groupby('Species').agg(agg_dict).reset_index()
-            
         if self.logged:
             for col in self.data.columns:
                 if self.data[col].dtype == 'float64':
                     self.data[col] = np.log(self.data[col])
                  
         for ax_n, (x, y) in enumerate(self.xy):
+            if self.species_means or self.family_means:
+                groupby_col = 'Family' if self.family_means else 'Species'
+
+                col_agg_dict = {}
+                for col in self.data.columns:
+                    if self.data[col].dtype == 'float64':
+                        col_agg_dict[col] = 'mean'
+                    elif col != groupby_col:
+                        col_agg_dict[col] = 'first'
+
+                if not self.overlay_means:
+                    self.data = self.data.groupby(groupby_col).agg(col_agg_dict).reset_index()
+
             axs[ax_n].scatter(
                 self.data[x], self.data[y],
                 c=self.data.Family.map(self.colors),
                 edgecolor=self.edgecolor, marker=self.marker, **kwargs
                 )
 
+            if self.overlay_means_means:
+                mean_data = self.data.groupby(groupby_col).agg(col_agg_dict).reset_index()
+
+                # average points for each family/species drawn on top of main plot. 
+                axs[ax_n].scatter(
+                    mean_data[x], mean_data[y],
+                    c=mean_data.Family.map(self.colors),
+                    edgecolor='mediumblue', marker='s', linewidth=2, s=35, **kwargs
+                    )
+ 
             # handles for main legend. legend reflects emphasization of family. 
             handles = [
                 Line2D([0], [0],
@@ -494,7 +508,7 @@ class Scatter(object):
             TypeError: if `new_pairs` contains non-int values.
         """
         if originals is True:
-            cls.def_pairs = (4, 3, 1)
+            cls.def_pairs = 4, 3, 1
         else:
             if all(isinstance(col_idx, int) for col_idx in new_pairs):
                 cls.def_pairs = tuple(new_pairs)
