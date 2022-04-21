@@ -48,7 +48,7 @@ class Scatter(object):
     __instances = []
     
     def __init__(self, xy=None, colors=None, logged=False, *, figsize=None, grid=None, edgecolor='k', marker='o', 
-                title=None, legend_loc='upper left', species_means=False, family_means=False, overlay=False):
+                title=None, legend_loc='upper left', species_means=False, family_means=False, overlay_means=False):
         """Construct object to be plotted with matplotlib.pyplot.
 
         Args:
@@ -80,7 +80,7 @@ class Scatter(object):
         self.legend_loc = legend_loc
         self.species_means = species_means
         self.family_means = family_means
-        self.overlay = overlay
+        self.overlay_means = overlay_means
 
         self.emph_arg = None       
         self.emph_kwargs = None
@@ -408,14 +408,24 @@ class Scatter(object):
                     elif col != groupby_col:
                         col_agg_dict[col] = 'first'
 
-                if not self.overlay:
+                if not self.overlay_means:
                     self.data = self.data.groupby(groupby_col).agg(col_agg_dict).reset_index()
 
             axs[ax_n].scatter(
                 self.data[x], self.data[y],
                 c=self.data.Family.map(self.colors),
                 edgecolor=self.edgecolor, marker=self.marker, **kwargs
-                )     
+                )
+
+            if self.overlay_means_means:
+                mean_data = self.data.groupby(groupby_col).agg(col_agg_dict).reset_index()
+
+                # average points for each family/species drawn on top of main plot. 
+                axs[ax_n].scatter(
+                    mean_data[x], mean_data[y],
+                    c=mean_data.Family.map(self.colors),
+                    edgecolor='mediumblue', marker='s', linewidth=2, s=35, **kwargs
+                    )
  
             # handles for main legend. legend reflects emphasization of family. 
             handles = [
